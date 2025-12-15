@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "469138142638",
+    "project_id": "famille-tree",
+    "storage_bucket": "famille-tree.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469138142638:android:53e4528f44b8a504dec43f",
+        "android_client_info": {
+          "package_name": "com.famille.famille_Tree"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9u9jrVkY9OXslo3LqPiOfLVA_eRKOboc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469138142638:android:334ca94499d58bbbdec43f",
+        "android_client_info": {
+          "package_name": "com.famille.famille_tree"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9u9jrVkY9OXslo3LqPiOfLVA_eRKOboc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469138142638:android:725ed41af26fb605dec43f",
+        "android_client_info": {
+          "package_name": "com.famille.familletree"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9u9jrVkY9OXslo3LqPiOfLVA_eRKOboc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
