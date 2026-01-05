@@ -413,6 +413,57 @@ class EventsScreen extends StatelessWidget {
                   ),
                 ),
               ],
+
+              // Edit/Delete Actions
+              if (Provider.of<AuthProvider>(
+                context,
+                listen: false,
+              ).canCreateEvents) ...[
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context); // Close sheet
+                          _showDeleteConfirmation(context, event);
+                        },
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Supprimer'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.errorColor,
+                          side: const BorderSide(color: AppTheme.errorColor),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context); // Close sheet
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  CreateEventScreen(eventToEdit: event),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Modifier'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
@@ -464,5 +515,52 @@ class EventsScreen extends StatelessWidget {
       case EventType.other:
         return AppLocalizations.of(context)!.eventTypeOther;
     }
+  }
+
+  void _showDeleteConfirmation(BuildContext context, FamilyEvent event) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Supprimer l\'événement'),
+        content: Text(
+          'Êtes-vous sûr de vouloir supprimer l\'événement "${event.title}" ?\nCette action est irréversible.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx); // Close dialog
+              final provider = context.read<EventProvider>();
+              final success = await provider.deleteEvent(event.id);
+
+              if (context.mounted) {
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Événement supprimé avec succès'),
+                      backgroundColor: AppTheme.successColor,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        provider.error ?? 'Erreur lors de la suppression',
+                      ),
+                      backgroundColor: AppTheme.errorColor,
+                    ),
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
+    );
   }
 }

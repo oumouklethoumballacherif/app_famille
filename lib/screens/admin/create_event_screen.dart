@@ -9,7 +9,9 @@ import '../../l10n/app_localizations.dart';
 
 /// Screen for creating a new family event
 class CreateEventScreen extends StatefulWidget {
-  const CreateEventScreen({super.key});
+  final FamilyEvent? eventToEdit;
+
+  const CreateEventScreen({super.key, this.eventToEdit});
 
   @override
   State<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -17,15 +19,32 @@ class CreateEventScreen extends StatefulWidget {
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _locationUrlController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late TextEditingController _titleController;
+  late TextEditingController _locationController;
+  late TextEditingController _locationUrlController;
+  late TextEditingController _descriptionController;
 
-  EventType _eventType = EventType.reunion;
-  DateTime _date = DateTime.now();
+  late EventType _eventType;
+  late DateTime _date;
   TimeOfDay? _time;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final event = widget.eventToEdit;
+    _titleController = TextEditingController(text: event?.title ?? '');
+    _locationController = TextEditingController(text: event?.location ?? '');
+    _locationUrlController = TextEditingController(
+      text: event?.locationUrl ?? '',
+    );
+    _descriptionController = TextEditingController(
+      text: event?.description ?? '',
+    );
+    _eventType = event?.type ?? EventType.reunion;
+    _date = event?.date ?? DateTime.now();
+    _time = event?.time;
+  }
 
   @override
   void dispose() {
@@ -68,7 +87,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final eventProvider = context.read<EventProvider>();
 
     final event = FamilyEvent(
-      id: '', // Will be generated
+      id: widget.eventToEdit?.id ?? '',
       title: _titleController.text.trim(),
       type: _eventType,
       date: _date,
@@ -82,11 +101,21 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       description: _descriptionController.text.trim().isNotEmpty
           ? _descriptionController.text.trim()
           : null,
-      createdBy: authProvider.currentUser?.uid ?? '',
-      createdAt: DateTime.now(),
+      relatedMemberIds: widget.eventToEdit?.relatedMemberIds ?? [],
+      imageUrl: widget.eventToEdit?.imageUrl,
+      createdBy:
+          widget.eventToEdit?.createdBy ?? authProvider.currentUser?.uid ?? '',
+      createdAt: widget.eventToEdit?.createdAt ?? DateTime.now(),
+      isNotificationSent: widget.eventToEdit?.isNotificationSent ?? false,
     );
 
-    final result = await eventProvider.addEvent(event);
+    final String? result;
+    if (widget.eventToEdit != null) {
+      final success = await eventProvider.updateEvent(event);
+      result = success ? event.id : null;
+    } else {
+      result = await eventProvider.addEvent(event);
+    }
 
     setState(() => _isLoading = false);
 

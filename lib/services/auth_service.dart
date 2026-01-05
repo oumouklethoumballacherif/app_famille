@@ -33,6 +33,8 @@ class AuthService {
       return null;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
+    } catch (e) {
+      throw _handleGenericException(e);
     }
   }
 
@@ -70,6 +72,8 @@ class AuthService {
       return null;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
+    } catch (e) {
+      throw _handleGenericException(e);
     }
   }
 
@@ -84,6 +88,8 @@ class AuthService {
       await _auth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
+    } catch (e) {
+      throw _handleGenericException(e);
     }
   }
 
@@ -100,7 +106,7 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      rethrow;
+      throw _handleGenericException(e);
     }
   }
 
@@ -123,6 +129,8 @@ class AuthService {
   /// Handle Firebase Auth exceptions with French messages
   String _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {
+      case 'network-request-failed':
+        return 'Pas de connexion internet. Vérifiez votre réseau.';
       case 'user-not-found':
         return 'Aucun utilisateur trouvé avec cet email.';
       case 'wrong-password':
@@ -140,6 +148,15 @@ class AuthService {
       default:
         return 'Erreur (${e.code}): ${e.message}';
     }
+  }
+
+  String _handleGenericException(Object e) {
+    if (e.toString().contains('SocketException') ||
+        e.toString().contains('network_error') ||
+        e.toString().contains('SERVICE_NOT_AVAILABLE')) {
+      return 'Pas de connexion internet. Vérifiez votre réseau.';
+    }
+    return 'Une erreur est survenue: $e';
   }
 
   // ============= ADMIN FUNCTIONS =============

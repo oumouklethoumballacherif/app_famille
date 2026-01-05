@@ -5,6 +5,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../models/family_member_model.dart';
 import '../../providers/family_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../screens/admin/add_member_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Member Detail Screen - Shows full profile of a family member
@@ -16,8 +18,11 @@ class MemberDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final familyProvider = context.watch<FamilyProvider>();
-    // final authProvider = context.watch<AuthProvider>();
-    // final canEdit = authProvider.canEditMembers;
+    final authProvider = context.watch<AuthProvider>();
+    final canEdit = authProvider.canEditMembers;
+
+    // Use member from provider to get latest updates, fallback to widget.member
+    final currentMember = familyProvider.getMemberById(member.id) ?? member;
 
     // Get parent and children information
     final father = member.fatherId != null
@@ -31,7 +36,7 @@ class MemberDetailScreen extends StatelessWidget {
         ? familyProvider.getMemberById(member.spouseId!)
         : null;
 
-    final genderColor = member.gender == Gender.male
+    final genderColor = currentMember.gender == Gender.male
         ? AppTheme.maleColor
         : AppTheme.femaleColor;
 
@@ -43,19 +48,36 @@ class MemberDetailScreen extends StatelessWidget {
             expandedHeight: 250,
             pinned: true,
             backgroundColor: genderColor,
+            actions: [
+              if (canEdit)
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AddMemberScreen(
+                          treeId: currentMember.treeId,
+                          memberToEdit: currentMember,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,
                 children: [
                   // Photo or placeholder
-                  if (member.photoUrl != null)
+                  if (currentMember.photoUrl != null)
                     CachedNetworkImage(
-                      imageUrl: member.photoUrl!,
+                      imageUrl: currentMember.photoUrl!,
                       fit: BoxFit.cover,
                       placeholder: (_, __) => Container(
                         color: genderColor.withValues(alpha: 0.3),
                         child: Icon(
-                          member.gender == Gender.male
+                          currentMember.gender == Gender.male
                               ? Icons.person
                               : Icons.person_2,
                           size: 100,
@@ -65,7 +87,7 @@ class MemberDetailScreen extends StatelessWidget {
                       errorWidget: (_, __, ___) => Container(
                         color: genderColor.withValues(alpha: 0.3),
                         child: Icon(
-                          member.gender == Gender.male
+                          currentMember.gender == Gender.male
                               ? Icons.person
                               : Icons.person_2,
                           size: 100,
@@ -77,7 +99,7 @@ class MemberDetailScreen extends StatelessWidget {
                     Container(
                       color: genderColor.withValues(alpha: 0.3),
                       child: Icon(
-                        member.gender == Gender.male
+                        currentMember.gender == Gender.male
                             ? Icons.person
                             : Icons.person_2,
                         size: 100,
@@ -105,7 +127,7 @@ class MemberDetailScreen extends StatelessWidget {
                 ],
               ),
               title: Text(
-                member.firstName,
+                currentMember.firstName,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   shadows: [
@@ -234,7 +256,7 @@ class MemberDetailScreen extends StatelessWidget {
                             AppLocalizations.of(context)!.ageLabel,
                             '${member.age} ${AppLocalizations.of(context)!.yearsSuffix}',
                           ),
-                          if (member.deathDate != null)
+                          if (currentMember.deathDate != null)
                             _buildInfoRow(
                               context,
                               Icons.event,
