@@ -7,6 +7,7 @@ import '../../models/event_model.dart';
 import '../../providers/event_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../admin/create_event_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Events Screen showing family events calendar
 class EventsScreen extends StatelessWidget {
@@ -19,26 +20,22 @@ class EventsScreen extends StatelessWidget {
     final canCreateEvents = authProvider.canCreateEvents;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Événements'),
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.eventsTitle)),
       body: eventProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : eventProvider.events.isEmpty
-              ? _buildEmptyState(context)
-              : _buildEventsList(context, eventProvider),
+          ? _buildEmptyState(context)
+          : _buildEventsList(context, eventProvider),
       floatingActionButton: canCreateEvents
           ? FloatingActionButton.extended(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const CreateEventScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const CreateEventScreen()),
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Nouvel événement'),
+              label: Text(AppLocalizations.of(context)!.newEventButton),
               backgroundColor: AppTheme.primaryColor,
             )
           : null,
@@ -59,18 +56,18 @@ class EventsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun événement',
+              AppLocalizations.of(context)!.noEvents,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+                color: AppTheme.textSecondary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
-              'Les événements familiaux apparaîtront ici',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+              AppLocalizations.of(context)!.noEventsSubtitle,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -81,8 +78,9 @@ class EventsScreen extends StatelessWidget {
 
   Widget _buildEventsList(BuildContext context, EventProvider eventProvider) {
     final upcomingEvents = eventProvider.upcomingEvents;
-    final pastEvents =
-        eventProvider.events.where((e) => !e.isUpcoming && !e.isToday).toList();
+    final pastEvents = eventProvider.events
+        .where((e) => !e.isUpcoming && !e.isToday)
+        .toList();
     final todayEvents = eventProvider.todayEvents;
 
     return SingleChildScrollView(
@@ -92,7 +90,11 @@ class EventsScreen extends StatelessWidget {
         children: [
           // Today's Events
           if (todayEvents.isNotEmpty) ...[
-            _buildSectionHeader(context, "Aujourd'hui", Icons.today),
+            _buildSectionHeader(
+              context,
+              AppLocalizations.of(context)!.todaySection,
+              Icons.today,
+            ),
             const SizedBox(height: 8),
             ...todayEvents.map((event) => _buildEventCard(context, event)),
             const SizedBox(height: 24),
@@ -100,7 +102,11 @@ class EventsScreen extends StatelessWidget {
 
           // Upcoming Events
           if (upcomingEvents.isNotEmpty) ...[
-            _buildSectionHeader(context, 'À venir', Icons.upcoming),
+            _buildSectionHeader(
+              context,
+              AppLocalizations.of(context)!.upcomingSection,
+              Icons.upcoming,
+            ),
             const SizedBox(height: 8),
             ...upcomingEvents.map((event) => _buildEventCard(context, event)),
             const SizedBox(height: 24),
@@ -108,7 +114,11 @@ class EventsScreen extends StatelessWidget {
 
           // Past Events
           if (pastEvents.isNotEmpty) ...[
-            _buildSectionHeader(context, 'Passés', Icons.history),
+            _buildSectionHeader(
+              context,
+              AppLocalizations.of(context)!.pastSection,
+              Icons.history,
+            ),
             const SizedBox(height: 8),
             ...pastEvents
                 .take(10)
@@ -120,24 +130,33 @@ class EventsScreen extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(
-      BuildContext context, String title, IconData icon) {
+    BuildContext context,
+    String title,
+    IconData icon,
+  ) {
     return Row(
       children: [
         Icon(icon, color: AppTheme.primaryColor),
         const SizedBox(width: 8),
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  Widget _buildEventCard(BuildContext context, FamilyEvent event,
-      {bool isPast = false}) {
-    final dateFormat = DateFormat('EEEE d MMMM yyyy', 'fr_FR');
+  Widget _buildEventCard(
+    BuildContext context,
+    FamilyEvent event, {
+    bool isPast = false,
+  }) {
+    final dateFormat = DateFormat(
+      'EEEE d MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -171,11 +190,11 @@ class EventsScreen extends StatelessWidget {
                     Text(
                       event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isPast
-                                ? AppTheme.textSecondary
-                                : AppTheme.textPrimary,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: isPast
+                            ? AppTheme.textSecondary
+                            : AppTheme.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -188,10 +207,8 @@ class EventsScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           dateFormat.format(event.date),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppTheme.textSecondary),
                         ),
                       ],
                     ),
@@ -208,12 +225,8 @@ class EventsScreen extends StatelessWidget {
                           Expanded(
                             child: Text(
                               event.location!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppTheme.textSecondary),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -233,7 +246,7 @@ class EventsScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  event.type.displayName,
+                  _getEventTypeDisplayName(context, event.type),
                   style: TextStyle(
                     color: event.type.color,
                     fontSize: 12,
@@ -249,7 +262,10 @@ class EventsScreen extends StatelessWidget {
   }
 
   void _showEventDetail(BuildContext context, FamilyEvent event) {
-    final dateFormat = DateFormat('EEEE d MMMM yyyy', 'fr_FR');
+    final dateFormat = DateFormat(
+      'EEEE d MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     showModalBottomSheet(
       context: context,
@@ -304,12 +320,8 @@ class EventsScreen extends StatelessWidget {
                       children: [
                         Text(
                           event.title,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Container(
                           margin: const EdgeInsets.only(top: 4),
@@ -322,7 +334,7 @@ class EventsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            event.type.displayName,
+                            _getEventTypeDisplayName(context, event.type),
                             style: TextStyle(
                               color: event.type.color,
                               fontWeight: FontWeight.w500,
@@ -342,7 +354,7 @@ class EventsScreen extends StatelessWidget {
               _buildDetailRow(
                 context,
                 Icons.calendar_today,
-                'Date',
+                AppLocalizations.of(context)!.eventDateLabel,
                 dateFormat.format(event.date),
               ),
 
@@ -351,7 +363,7 @@ class EventsScreen extends StatelessWidget {
                 _buildDetailRow(
                   context,
                   Icons.access_time,
-                  'Heure',
+                  AppLocalizations.of(context)!.timeLabel,
                   '${event.time!.hour.toString().padLeft(2, '0')}:${event.time!.minute.toString().padLeft(2, '0')}',
                 ),
 
@@ -360,7 +372,7 @@ class EventsScreen extends StatelessWidget {
                 _buildDetailRow(
                   context,
                   Icons.location_on,
-                  'Lieu',
+                  AppLocalizations.of(context)!.locationLabel,
                   event.location!,
                 ),
 
@@ -369,10 +381,10 @@ class EventsScreen extends StatelessWidget {
                   event.description!.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(
-                  'Description',
+                  AppLocalizations.of(context)!.descriptionLabel,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -390,12 +402,14 @@ class EventsScreen extends StatelessWidget {
                     onPressed: () async {
                       final uri = Uri.parse(event.locationUrl!);
                       if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri,
-                            mode: LaunchMode.externalApplication);
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
                       }
                     },
                     icon: const Icon(Icons.map),
-                    label: const Text('Ouvrir dans Google Maps'),
+                    label: Text(AppLocalizations.of(context)!.openMapButton),
                   ),
                 ),
               ],
@@ -421,20 +435,34 @@ class EventsScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(label, style: Theme.of(context).textTheme.bodySmall),
               Text(
                 value,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
               ),
             ],
           ),
         ],
       ),
     );
+  }
+
+  String _getEventTypeDisplayName(BuildContext context, EventType type) {
+    switch (type) {
+      case EventType.wedding:
+        return AppLocalizations.of(context)!.eventTypeWedding;
+      case EventType.birth:
+        return AppLocalizations.of(context)!.eventTypeBirth;
+      case EventType.death:
+        return AppLocalizations.of(context)!.eventTypeDeath;
+      case EventType.reunion:
+        return AppLocalizations.of(context)!.eventTypeReunion;
+      case EventType.religious:
+        return AppLocalizations.of(context)!.eventTypeReligious;
+      case EventType.other:
+        return AppLocalizations.of(context)!.eventTypeOther;
+    }
   }
 }

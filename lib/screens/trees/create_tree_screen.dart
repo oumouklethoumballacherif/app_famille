@@ -4,6 +4,7 @@ import '../../config/theme.dart';
 import '../../models/family_tree_model.dart';
 import '../../providers/tree_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Screen for creating or editing a family tree
 class CreateTreeScreen extends StatefulWidget {
@@ -74,7 +75,9 @@ class _CreateTreeScreenState extends State<CreateTreeScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isEditing ? 'Arbre modifié' : 'Arbre créé avec succès',
+              isEditing
+                  ? AppLocalizations.of(context)!.treeUpdated
+                  : AppLocalizations.of(context)!.treeCreated,
             ),
             backgroundColor: AppTheme.successColor,
           ),
@@ -83,7 +86,9 @@ class _CreateTreeScreenState extends State<CreateTreeScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(treeProvider.error ?? 'Erreur'),
+            content: Text(
+              treeProvider.error ?? AppLocalizations.of(context)!.genericError,
+            ),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -95,7 +100,11 @@ class _CreateTreeScreenState extends State<CreateTreeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Modifier l\'arbre' : 'Nouvel Arbre'),
+        title: Text(
+          isEditing
+              ? AppLocalizations.of(context)!.editTreeTitle
+              : AppLocalizations.of(context)!.newTreeTitle,
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -123,17 +132,17 @@ class _CreateTreeScreenState extends State<CreateTreeScreen> {
               TextFormField(
                 controller: _nameController,
                 textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Nom de l\'arbre *',
-                  hintText: 'Ex: Famille Cherif',
-                  prefixIcon: Icon(Icons.title),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.treeNameLabel,
+                  hintText: AppLocalizations.of(context)!.treeNameHint,
+                  prefixIcon: const Icon(Icons.title),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Veuillez entrer un nom';
+                    return AppLocalizations.of(context)!.enterNameError;
                   }
                   if (value.trim().length < 2) {
-                    return 'Le nom doit contenir au moins 2 caractères';
+                    return AppLocalizations.of(context)!.nameLengthError;
                   }
                   return null;
                 },
@@ -145,10 +154,10 @@ class _CreateTreeScreenState extends State<CreateTreeScreen> {
                 controller: _descriptionController,
                 textInputAction: TextInputAction.done,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optionnel)',
-                  hintText: 'Ex: Arbre du côté paternel',
-                  prefixIcon: Icon(Icons.description),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.descriptionLabel,
+                  hintText: AppLocalizations.of(context)!.descriptionHint,
+                  prefixIcon: const Icon(Icons.description),
                   alignLabelWithHint: true,
                 ),
               ),
@@ -170,7 +179,9 @@ class _CreateTreeScreenState extends State<CreateTreeScreen> {
                         ),
                       )
                     : Text(
-                        isEditing ? 'Enregistrer' : 'Créer l\'arbre',
+                        isEditing
+                            ? AppLocalizations.of(context)!.saveButton
+                            : AppLocalizations.of(context)!.createTreeAction,
                         style: const TextStyle(fontSize: 16),
                       ),
               ),

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/family_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// User Profile Screen
 class ProfileScreen extends StatelessWidget {
@@ -21,12 +23,12 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mon Profil'),
+        title: Text(AppLocalizations.of(context)!.profileTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _showLogoutDialog(context, authProvider),
-            tooltip: 'Se déconnecter',
+            tooltip: AppLocalizations.of(context)!.logoutLabel,
           ),
         ],
       ),
@@ -43,14 +45,15 @@ class ProfileScreen extends StatelessWidget {
                     // Avatar
                     CircleAvatar(
                       radius: 50,
-                      backgroundColor:
-                          AppTheme.primaryColor.withValues(alpha: 0.2),
+                      backgroundColor: AppTheme.primaryColor.withValues(
+                        alpha: 0.2,
+                      ),
                       child: Icon(
                         currentUser?.role.index == 0
                             ? Icons.admin_panel_settings
                             : currentUser?.role.index == 1
-                                ? Icons.shield
-                                : Icons.person,
+                            ? Icons.shield
+                            : Icons.person,
                         size: 50,
                         color: AppTheme.primaryColor,
                       ),
@@ -61,8 +64,8 @@ class ProfileScreen extends StatelessWidget {
                     Text(
                       currentUser?.email ?? '',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
 
@@ -73,12 +76,13 @@ class ProfileScreen extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: _getRoleColor(currentUser?.role)
-                            .withValues(alpha: 0.2),
+                        color: _getRoleColor(
+                          currentUser?.role,
+                        ).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        _getRoleDisplayName(currentUser?.role),
+                        _getRoleDisplayName(context, currentUser?.role),
                         style: TextStyle(
                           color: _getRoleColor(currentUser?.role),
                           fontWeight: FontWeight.w600,
@@ -100,11 +104,13 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.account_circle,
-                            color: AppTheme.primaryColor),
+                        const Icon(
+                          Icons.account_circle,
+                          color: AppTheme.primaryColor,
+                        ),
                         const SizedBox(width: 8),
                         Text(
-                          'Informations du compte',
+                          AppLocalizations.of(context)!.accountInfoTitle,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
@@ -113,22 +119,95 @@ class ProfileScreen extends StatelessWidget {
                     _buildInfoRow(
                       context,
                       Icons.email,
-                      'Email',
+                      AppLocalizations.of(context)!.emailLabel,
                       currentUser?.email ?? '-',
                     ),
                     _buildInfoRow(
                       context,
                       Icons.phone,
-                      'Téléphone',
-                      currentUser?.phone ?? 'Non renseigné',
+                      AppLocalizations.of(context)!.phoneLabel,
+                      currentUser?.phone ??
+                          AppLocalizations.of(context)!.notProvided,
                     ),
                     _buildInfoRow(
                       context,
                       Icons.verified_user,
-                      'Statut',
+                      AppLocalizations.of(context)!.statusLabel,
                       currentUser?.isApproved == true
-                          ? 'Approuvé'
-                          : 'En attente',
+                          ? AppLocalizations.of(context)!.statusApproved
+                          : AppLocalizations.of(context)!.statusPending,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Settings
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.settings,
+                          color: AppTheme.primaryColor,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          AppLocalizations.of(context)!.settingsTitle,
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.language,
+                            size: 20,
+                            color: AppTheme.textSecondary,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            AppLocalizations.of(context)!.languageLabel,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const Spacer(),
+                          Consumer<LanguageProvider>(
+                            builder: (context, languageProvider, child) {
+                              return DropdownButton<Locale>(
+                                value: languageProvider.locale,
+                                underline: const SizedBox(),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: Locale('fr', ''),
+                                    child: Text('Français'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: Locale('en', ''),
+                                    child: Text('English'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: Locale('ar', ''),
+                                    child: Text('العربية'),
+                                  ),
+                                ],
+                                onChanged: (Locale? newLocale) {
+                                  if (newLocale != null) {
+                                    languageProvider.changeLanguage(newLocale);
+                                  }
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -151,11 +230,13 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.family_restroom,
-                                color: AppTheme.primaryColor),
+                            const Icon(
+                              Icons.family_restroom,
+                              color: AppTheme.primaryColor,
+                            ),
                             const SizedBox(width: 8),
                             Text(
-                              'Ma fiche dans l\'arbre',
+                              AppLocalizations.of(context)!.linkedMemberTitle,
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                           ],
@@ -165,10 +246,13 @@ class ProfileScreen extends StatelessWidget {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor:
-                                  AppTheme.primaryColor.withValues(alpha: 0.2),
-                              child: const Icon(Icons.person,
-                                  color: AppTheme.primaryColor),
+                              backgroundColor: AppTheme.primaryColor.withValues(
+                                alpha: 0.2,
+                              ),
+                              child: const Icon(
+                                Icons.person,
+                                color: AppTheme.primaryColor,
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
@@ -180,15 +264,13 @@ class ProfileScreen extends StatelessWidget {
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    'Voir ma fiche complète',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.viewFullProfile,
+                                    style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(
                                           color: AppTheme.primaryColor,
                                         ),
@@ -196,8 +278,10 @@ class ProfileScreen extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            const Icon(Icons.chevron_right,
-                                color: AppTheme.textSecondary),
+                            const Icon(
+                              Icons.chevron_right,
+                              color: AppTheme.textSecondary,
+                            ),
                           ],
                         ),
                       ],
@@ -216,11 +300,13 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.security,
-                            color: AppTheme.primaryColor),
+                        const Icon(
+                          Icons.security,
+                          color: AppTheme.primaryColor,
+                        ),
                         const SizedBox(width: 8),
                         Text(
-                          'Mes permissions',
+                          AppLocalizations.of(context)!.permissionsTitle,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
                       ],
@@ -228,22 +314,22 @@ class ProfileScreen extends StatelessWidget {
                     const Divider(height: 24),
                     _buildPermissionRow(
                       context,
-                      'Voir l\'arbre',
+                      AppLocalizations.of(context)!.permissionViewTree,
                       true,
                     ),
                     _buildPermissionRow(
                       context,
-                      'Modifier les membres',
+                      AppLocalizations.of(context)!.permissionEditMembers,
                       authProvider.canEditMembers,
                     ),
                     _buildPermissionRow(
                       context,
-                      'Créer des événements',
+                      AppLocalizations.of(context)!.permissionCreateEvents,
                       authProvider.canCreateEvents,
                     ),
                     _buildPermissionRow(
                       context,
-                      'Gérer les utilisateurs',
+                      AppLocalizations.of(context)!.permissionManageUsers,
                       authProvider.isAdmin,
                     ),
                   ],
@@ -258,7 +344,7 @@ class ProfileScreen extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () => _showLogoutDialog(context, authProvider),
                 icon: const Icon(Icons.logout),
-                label: const Text('Se déconnecter'),
+                label: Text(AppLocalizations.of(context)!.logoutAction),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppTheme.errorColor,
                   side: const BorderSide(color: AppTheme.errorColor),
@@ -266,6 +352,25 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            // DEBUG BUTTON
+            if (!authProvider.isAdmin)
+              TextButton(
+                onPressed: () async {
+                  await authProvider.promoteSelfToAdmin();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.promotedToAdmin,
+                        ),
+                        backgroundColor: AppTheme.successColor,
+                      ),
+                    );
+                  }
+                },
+                child: Text(AppLocalizations.of(context)!.devBecomeAdmin),
+              ),
             const SizedBox(height: 16),
           ],
         ),
@@ -289,14 +394,8 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
+                Text(label, style: Theme.of(context).textTheme.bodySmall),
+                Text(value, style: Theme.of(context).textTheme.bodyLarge),
               ],
             ),
           ),
@@ -320,10 +419,7 @@ class ProfileScreen extends StatelessWidget {
             color: allowed ? AppTheme.successColor : AppTheme.errorColor,
           ),
           const SizedBox(width: 12),
-          Text(
-            permission,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          Text(permission, style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),
     );
@@ -341,15 +437,15 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
-  String _getRoleDisplayName(dynamic role) {
-    if (role == null) return 'Membre';
+  String _getRoleDisplayName(BuildContext context, dynamic role) {
+    if (role == null) return AppLocalizations.of(context)!.roleMember;
     switch (role.index) {
       case 0:
-        return 'Administrateur';
+        return AppLocalizations.of(context)!.roleAdmin;
       case 1:
-        return 'Modérateur';
+        return AppLocalizations.of(context)!.roleModerator;
       default:
-        return 'Membre';
+        return AppLocalizations.of(context)!.roleMember;
     }
   }
 
@@ -357,12 +453,12 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Se déconnecter'),
-        content: const Text('Voulez-vous vraiment vous déconnecter ?'),
+        title: Text(AppLocalizations.of(context)!.logoutLabel),
+        content: Text(AppLocalizations.of(context)!.logoutConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancelButton),
           ),
           ElevatedButton(
             onPressed: () {
@@ -372,7 +468,7 @@ class ProfileScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
             ),
-            child: const Text('Se déconnecter'),
+            child: Text(AppLocalizations.of(context)!.logoutAction),
           ),
         ],
       ),

@@ -7,10 +7,6 @@ enum Gender { male, female }
 extension GenderExtension on Gender {
   String get value => this == Gender.male ? 'male' : 'female';
 
-  String get displayName => this == Gender.male ? 'Homme' : 'Femme';
-
-  String get displayNameAr => this == Gender.male ? 'ذكر' : 'أنثى';
-
   static Gender fromString(String value) {
     return value.toLowerCase() == 'male' ? Gender.male : Gender.female;
   }
@@ -22,13 +18,6 @@ enum VitalStatus { alive, deceased }
 /// Extension for VitalStatus enum
 extension VitalStatusExtension on VitalStatus {
   String get value => this == VitalStatus.alive ? 'alive' : 'deceased';
-
-  String get displayName => this == VitalStatus.alive ? 'Vivant' : 'Décédé';
-
-  String get displayNameAr => this == VitalStatus.alive ? 'حي' : 'متوفى';
-
-  /// Arabic phrase for deceased members
-  String get deceasedPhrase => 'رحمه الله';
 
   static VitalStatus fromString(String value) {
     return value.toLowerCase() == 'alive'
@@ -86,13 +75,8 @@ class FamilyMember {
   /// Get full name in the format: FirstName FatherName GrandfatherName
   String get fullName => '$firstName $fatherName $grandfatherName';
 
-  /// Get display name with deceased phrase if applicable
-  String get displayName {
-    if (status == VitalStatus.deceased) {
-      return '$fullName (${status.deceasedPhrase})';
-    }
-    return fullName;
-  }
+  /// Get display name
+  String get displayName => fullName;
 
   /// Check if this member has a father in the tree
   bool get hasFather => fatherId != null && fatherId!.isNotEmpty;

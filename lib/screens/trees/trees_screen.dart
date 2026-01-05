@@ -6,6 +6,7 @@ import '../../providers/tree_provider.dart';
 import '../../providers/auth_provider.dart';
 import 'create_tree_screen.dart';
 import '../tree/tree_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Screen displaying list of family trees
 class TreesScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _TreesScreenState extends State<TreesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mes Arbres Familiaux'),
+        title: Text(AppLocalizations.of(context)!.myFamilyTrees),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -66,7 +67,7 @@ class _TreesScreenState extends State<TreesScreen> {
             onPressed: () => _navigateToCreateTree(context),
             icon: const Icon(Icons.add),
             heroTag: 'new_tree_fab',
-            label: const Text('Nouvel Arbre'),
+            label: Text(AppLocalizations.of(context)!.newTree),
           );
         },
       ),
@@ -85,14 +86,14 @@ class _TreesScreenState extends State<TreesScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Aucun arbre familial',
+            AppLocalizations.of(context)!.noFamilyTree,
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(color: AppTheme.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
-            'Créez votre premier arbre pour commencer',
+            AppLocalizations.of(context)!.createFirstTree,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
@@ -101,7 +102,7 @@ class _TreesScreenState extends State<TreesScreen> {
           ElevatedButton.icon(
             onPressed: () => _navigateToCreateTree(context),
             icon: const Icon(Icons.add),
-            label: const Text('Créer un arbre'),
+            label: Text(AppLocalizations.of(context)!.createTreeButton),
           ),
         ],
       ),
@@ -166,7 +167,7 @@ class _TreesScreenState extends State<TreesScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${tree.memberCount} membres',
+                          '${tree.memberCount} ${AppLocalizations.of(context)!.membersCount}',
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppTheme.textSecondary),
                         ),
@@ -186,25 +187,25 @@ class _TreesScreenState extends State<TreesScreen> {
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit),
-                          SizedBox(width: 8),
-                          Text('Modifier'),
+                          const Icon(Icons.edit),
+                          const SizedBox(width: 8),
+                          Text(AppLocalizations.of(context)!.editAction),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete, color: AppTheme.errorColor),
-                          SizedBox(width: 8),
+                          const Icon(Icons.delete, color: AppTheme.errorColor),
+                          const SizedBox(width: 8),
                           Text(
-                            'Supprimer',
-                            style: TextStyle(color: AppTheme.errorColor),
+                            AppLocalizations.of(context)!.deleteAction,
+                            style: const TextStyle(color: AppTheme.errorColor),
                           ),
                         ],
                       ),
@@ -256,21 +257,21 @@ class _TreesScreenState extends State<TreesScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Supprimer l\'arbre'),
+        title: Text(AppLocalizations.of(context)!.deleteTreeTitle),
         content: Text(
-          'Voulez-vous vraiment supprimer "${tree.name}" et tous ses membres ?\n\nCette action est irréversible.',
+          AppLocalizations.of(context)!.deleteTreeConfirmation(tree.name),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
             ),
-            child: const Text('Supprimer'),
+            child: Text(AppLocalizations.of(context)!.deleteAction),
           ),
         ],
       ),
@@ -282,7 +283,9 @@ class _TreesScreenState extends State<TreesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              success ? 'Arbre supprimé' : 'Erreur lors de la suppression',
+              success
+                  ? AppLocalizations.of(context)!.treeDeleted
+                  : AppLocalizations.of(context)!.deleteError,
             ),
             backgroundColor: success
                 ? AppTheme.successColor

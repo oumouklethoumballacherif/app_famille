@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Registration Screen
 class RegisterScreen extends StatefulWidget {
@@ -48,8 +49,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Inscription réussie ! En attente de validation.'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.registrationSuccess),
             backgroundColor: AppTheme.successColor,
           ),
         );
@@ -57,7 +58,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(authProvider.error ?? 'Erreur d\'inscription'),
+            content: Text(
+              authProvider.error ??
+                  AppLocalizations.of(context)!.registrationError,
+            ),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -69,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inscription'),
+        title: Text(AppLocalizations.of(context)!.registerTitle),
         backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
@@ -84,18 +88,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 // Title
                 Text(
-                  'Créer un compte',
+                  AppLocalizations.of(context)!.createAccountTitle,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Votre compte devra être validé par l\'administrateur avant de pouvoir accéder à l\'arbre familial.',
+                  AppLocalizations.of(context)!.registerSubtitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 32),
 
@@ -104,16 +108,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Email *',
-                    prefixIcon: Icon(Icons.email_outlined),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.emailLabelRequired,
+                    prefixIcon: const Icon(Icons.email_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre email';
+                      return AppLocalizations.of(context)!.enterEmailError;
                     }
                     if (!value.contains('@') || !value.contains('.')) {
-                      return 'Veuillez entrer un email valide';
+                      return AppLocalizations.of(context)!.invalidEmailError;
                     }
                     return null;
                   },
@@ -125,9 +129,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Téléphone (optionnel)',
-                    prefixIcon: Icon(Icons.phone_outlined),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.phoneOptionalLabel,
+                    prefixIcon: const Icon(Icons.phone_outlined),
                     hintText: '+212 6XX XXX XXX',
                   ),
                 ),
@@ -139,7 +143,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: !_isPasswordVisible,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                    labelText: 'Mot de passe *',
+                    labelText: AppLocalizations.of(
+                      context,
+                    )!.passwordLabelRequired,
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -156,10 +162,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer un mot de passe';
+                      return AppLocalizations.of(
+                        context,
+                      )!.enterPasswordErrorShort;
                     }
                     if (value.length < 6) {
-                      return 'Le mot de passe doit contenir au moins 6 caractères';
+                      return AppLocalizations.of(context)!.passwordLengthError;
                     }
                     return null;
                   },
@@ -172,16 +180,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   obscureText: !_isPasswordVisible,
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _handleRegister(),
-                  decoration: const InputDecoration(
-                    labelText: 'Confirmer le mot de passe *',
-                    prefixIcon: Icon(Icons.lock_outlined),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(
+                      context,
+                    )!.confirmPasswordLabel,
+                    prefixIcon: const Icon(Icons.lock_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez confirmer le mot de passe';
+                      return AppLocalizations.of(context)!.confirmPasswordError;
                     }
                     if (value != _passwordController.text) {
-                      return 'Les mots de passe ne correspondent pas';
+                      return AppLocalizations.of(
+                        context,
+                      )!.passwordMismatchError;
                     }
                     return null;
                   },
@@ -207,11 +219,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Après inscription, un administrateur validera votre compte.',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.primaryColor,
-                                  ),
+                          AppLocalizations.of(context)!.adminApprovalInfo,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppTheme.primaryColor),
                         ),
                       ),
                     ],
@@ -234,9 +244,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'S\'inscrire',
-                          style: TextStyle(fontSize: 16),
+                      : Text(
+                          AppLocalizations.of(context)!.signupButton,
+                          style: const TextStyle(fontSize: 16),
                         ),
                 ),
                 const SizedBox(height: 16),
@@ -245,10 +255,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Déjà un compte ?'),
+                    Text(AppLocalizations.of(context)!.alreadyAccount),
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Se connecter'),
+                      child: Text(AppLocalizations.of(context)!.loginButton),
                     ),
                   ],
                 ),

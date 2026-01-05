@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Screen shown when user is logged in but not yet approved by admin
 class PendingApprovalScreen extends StatelessWidget {
@@ -35,24 +36,22 @@ class PendingApprovalScreen extends StatelessWidget {
 
               // Title
               Text(
-                'En attente de validation',
+                AppLocalizations.of(context)!.pendingApprovalTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppTheme.textPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: AppTheme.textPrimary,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
 
               // Description
               Text(
-                'Votre compte a été créé avec succès.\n\n'
-                'Un administrateur doit valider votre inscription avant que vous puissiez accéder à l\'arbre familial.\n\n'
-                'Vous recevrez une notification une fois votre compte approuvé.',
+                AppLocalizations.of(context)!.pendingApprovalMessage,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppTheme.textSecondary,
-                      height: 1.5,
-                    ),
+                  color: AppTheme.textSecondary,
+                  height: 1.5,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -86,13 +85,31 @@ class PendingApprovalScreen extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: () => authProvider.signOut(),
                 icon: const Icon(Icons.logout),
-                label: const Text('Se déconnecter'),
+                label: Text(AppLocalizations.of(context)!.logoutLabel),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 16,
                   ),
                 ),
+              ),
+              const SizedBox(height: 20),
+              // DEBUG BUTTON
+              TextButton(
+                onPressed: () async {
+                  await authProvider.promoteSelfToAdmin();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.devAdminSuccess,
+                        ),
+                        backgroundColor: AppTheme.successColor,
+                      ),
+                    );
+                  }
+                },
+                child: Text(AppLocalizations.of(context)!.devBecomeAdmin),
               ),
             ],
           ),

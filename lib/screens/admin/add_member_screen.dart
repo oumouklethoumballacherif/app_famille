@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../models/family_member_model.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Screen for adding a new family member
 class AddMemberScreen extends StatefulWidget {
@@ -136,7 +137,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
     final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ajouter un membre')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.addMemberTitle)),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -146,7 +147,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
             children: [
               // Names Section
               Text(
-                'Identité',
+                AppLocalizations.of(context)!.identitySection,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -155,14 +156,14 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
               TextFormField(
                 controller: _firstNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Prénom *',
-                  prefixIcon: Icon(Icons.person),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.firstNameLabel,
+                  prefixIcon: const Icon(Icons.person),
                 ),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Le prénom est obligatoire';
+                    return AppLocalizations.of(context)!.firstNameError;
                   }
                   return null;
                 },
@@ -171,14 +172,14 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
               TextFormField(
                 controller: _fatherNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom du père *',
-                  prefixIcon: Icon(Icons.person_outline),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.fatherNameLabel,
+                  prefixIcon: const Icon(Icons.person_outline),
                 ),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Le nom du père est obligatoire';
+                    return AppLocalizations.of(context)!.fatherNameError;
                   }
                   return null;
                 },
@@ -187,14 +188,14 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
               TextFormField(
                 controller: _grandfatherNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom du grand-père *',
-                  prefixIcon: Icon(Icons.person_outline),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.grandfatherNameLabel,
+                  prefixIcon: const Icon(Icons.person_outline),
                 ),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Le nom du grand-père est obligatoire';
+                    return AppLocalizations.of(context)!.grandfatherNameError;
                   }
                   return null;
                 },
@@ -202,18 +203,25 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
               const SizedBox(height: 24),
 
               // Gender Selection
-              Text('Sexe', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                AppLocalizations.of(context)!.genderLabel,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [
                   Expanded(
-                    child: _buildGenderOption(Gender.male, 'Homme', Icons.male),
+                    child: _buildGenderOption(
+                      Gender.male,
+                      AppLocalizations.of(context)!.genderMale,
+                      Icons.male,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: _buildGenderOption(
                       Gender.female,
-                      'Femme',
+                      AppLocalizations.of(context)!.genderFemale,
                       Icons.female,
                     ),
                   ),
@@ -223,7 +231,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
               // Birth Info
               Text(
-                'Naissance',
+                AppLocalizations.of(context)!.birthSection,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -234,9 +242,9 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                 onTap: () => _selectDate(context, true),
                 borderRadius: BorderRadius.circular(12),
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Date de naissance *',
-                    prefixIcon: Icon(Icons.cake),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.birthDateLabel,
+                    prefixIcon: const Icon(Icons.cake),
                   ),
                   child: Text(dateFormat.format(_birthDate)),
                 ),
@@ -245,14 +253,14 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
               TextFormField(
                 controller: _birthPlaceController,
-                decoration: const InputDecoration(
-                  labelText: 'Lieu de naissance *',
-                  prefixIcon: Icon(Icons.location_on),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.birthPlaceInputLabel,
+                  prefixIcon: const Icon(Icons.location_on),
                 ),
                 textCapitalization: TextCapitalization.words,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Le lieu de naissance est obligatoire';
+                    return AppLocalizations.of(context)!.birthPlaceError;
                   }
                   return null;
                 },
@@ -261,7 +269,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
               // Sibling Rank
               Text(
-                'Rang dans la fratrie',
+                AppLocalizations.of(context)!.siblingRankLabel,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
@@ -299,7 +307,7 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
               // Vital Status
               Text(
-                'Statut',
+                AppLocalizations.of(context)!.statusSection,
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -308,11 +316,17 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildStatusOption(VitalStatus.alive, 'Vivant'),
+                    child: _buildStatusOption(
+                      VitalStatus.alive,
+                      AppLocalizations.of(context)!.statusAlive,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildStatusOption(VitalStatus.deceased, 'Décédé'),
+                    child: _buildStatusOption(
+                      VitalStatus.deceased,
+                      AppLocalizations.of(context)!.statusDeceased,
+                    ),
                   ),
                 ],
               ),
@@ -323,9 +337,11 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                   onTap: () => _selectDate(context, false),
                   borderRadius: BorderRadius.circular(12),
                   child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'Date de décès',
-                      prefixIcon: Icon(Icons.event),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(
+                        context,
+                      )!.deathDateInputLabel,
+                      prefixIcon: const Icon(Icons.event),
                     ),
                     child: Text(
                       _deathDate != null

@@ -8,6 +8,7 @@ import '../../providers/tree_provider.dart';
 import '../../widgets/tree_node_widget.dart';
 import 'member_detail_screen.dart';
 import '../admin/add_member_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Interactive Family Tree Screen
 class TreeScreen extends StatefulWidget {
@@ -50,8 +51,10 @@ class _TreeScreenState extends State<TreeScreen> {
 
     if (selectedTree == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Arbre Familial')),
-        body: const Center(child: Text('Aucun arbre sélectionné')),
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.familyTreeTitle),
+        ),
+        body: Center(child: Text(AppLocalizations.of(context)!.noTreeSelected)),
       );
     }
 
@@ -66,7 +69,7 @@ class _TreeScreenState extends State<TreeScreen> {
               _transformationController.value = Matrix4.identity();
               familyProvider.loadMembersForTree(selectedTree.id);
             },
-            tooltip: 'Réinitialiser',
+            tooltip: AppLocalizations.of(context)!.resetTooltip,
           ),
         ],
       ),
@@ -86,7 +89,7 @@ class _TreeScreenState extends State<TreeScreen> {
                 );
               },
               icon: const Icon(Icons.person_add),
-              label: const Text('Ajouter'),
+              label: Text(AppLocalizations.of(context)!.addMemberButton),
               heroTag: 'add_member_fab',
               backgroundColor: AppTheme.primaryColor,
             )
@@ -108,7 +111,7 @@ class _TreeScreenState extends State<TreeScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Aucun membre dans l\'arbre',
+              AppLocalizations.of(context)!.noMembersInTree,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: AppTheme.textSecondary,
               ),
@@ -117,8 +120,8 @@ class _TreeScreenState extends State<TreeScreen> {
             const SizedBox(height: 16),
             Text(
               canEdit
-                  ? 'Commencez par ajouter le premier membre de la famille.'
-                  : 'L\'administrateur n\'a pas encore ajouté de membres.',
+                  ? AppLocalizations.of(context)!.addFirstMember
+                  : AppLocalizations.of(context)!.noMembersAdmin,
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
@@ -136,7 +139,7 @@ class _TreeScreenState extends State<TreeScreen> {
                   );
                 },
                 icon: const Icon(Icons.person_add),
-                label: const Text('Ajouter le premier membre'),
+                label: Text(AppLocalizations.of(context)!.addFirstMemberButton),
               ),
             ],
           ],
@@ -170,7 +173,7 @@ class _TreeScreenState extends State<TreeScreen> {
                     color: AppTheme.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
@@ -180,8 +183,8 @@ class _TreeScreenState extends State<TreeScreen> {
                       ),
                       SizedBox(width: 8),
                       Text(
-                        'Pincez pour zoomer • Faites glisser pour naviguer',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.treeInstructions,
+                        style: const TextStyle(
                           color: AppTheme.primaryColor,
                           fontSize: 12,
                         ),

@@ -5,6 +5,7 @@ import '../../models/family_member_model.dart';
 import '../../providers/family_provider.dart';
 import '../../widgets/member_card_widget.dart';
 import '../tree/member_detail_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Search Screen for finding family members
 class SearchScreen extends StatefulWidget {
@@ -40,7 +41,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Recherche'),
+        title: Text(AppLocalizations.of(context)!.searchTitle),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: Padding(
@@ -50,7 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
               focusNode: _focusNode,
               onChanged: _onSearchChanged,
               decoration: InputDecoration(
-                hintText: 'Rechercher un membre par nom...',
+                hintText: AppLocalizations.of(context)!.searchHint,
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -80,7 +81,9 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildInitialState(
-      BuildContext context, FamilyProvider familyProvider) {
+    BuildContext context,
+    FamilyProvider familyProvider,
+  ) {
     final stats = familyProvider.getStatistics();
 
     return SingleChildScrollView(
@@ -90,7 +93,7 @@ class _SearchScreenState extends State<SearchScreen> {
         children: [
           // Statistics Cards
           Text(
-            'Statistiques de la famille',
+            AppLocalizations.of(context)!.familyStatsTitle,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
@@ -100,7 +103,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: _buildStatCard(
                   context,
                   Icons.people,
-                  'Total',
+                  AppLocalizations.of(context)!.totalStat,
                   stats['total'].toString(),
                   AppTheme.primaryColor,
                 ),
@@ -110,7 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: _buildStatCard(
                   context,
                   Icons.male,
-                  'Hommes',
+                  AppLocalizations.of(context)!.menStat,
                   stats['male'].toString(),
                   AppTheme.maleColor,
                 ),
@@ -120,7 +123,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: _buildStatCard(
                   context,
                   Icons.female,
-                  'Femmes',
+                  AppLocalizations.of(context)!.womenStat,
                   stats['female'].toString(),
                   AppTheme.femaleColor,
                 ),
@@ -134,7 +137,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: _buildStatCard(
                   context,
                   Icons.favorite,
-                  'Vivants',
+                  AppLocalizations.of(context)!.aliveStat,
                   stats['alive'].toString(),
                   AppTheme.successColor,
                 ),
@@ -144,7 +147,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: _buildStatCard(
                   context,
                   Icons.brightness_2,
-                  'Décédés',
+                  AppLocalizations.of(context)!.deceasedStat,
                   stats['deceased'].toString(),
                   AppTheme.deceasedColor,
                 ),
@@ -157,7 +160,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
           // Recent members or all members
           Text(
-            'Tous les membres',
+            AppLocalizations.of(context)!.allMembersTitle,
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
@@ -192,14 +195,11 @@ class _SearchScreenState extends State<SearchScreen> {
             Text(
               value,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(label, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),
@@ -224,17 +224,17 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Aucun résultat trouvé',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+              AppLocalizations.of(context)!.noSearchResults,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: AppTheme.textSecondary),
             ),
             const SizedBox(height: 8),
             Text(
-              'Essayez avec un autre nom',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+              AppLocalizations.of(context)!.searchRetry,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
             ),
           ],
         ),
@@ -261,9 +261,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void _navigateToDetail(BuildContext context, FamilyMember member) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => MemberDetailScreen(member: member),
-      ),
+      MaterialPageRoute(builder: (_) => MemberDetailScreen(member: member)),
     );
   }
 }

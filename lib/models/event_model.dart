@@ -2,14 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 /// Event types for family events
-enum EventType {
-  wedding,
-  birth,
-  death,
-  reunion,
-  religious,
-  other,
-}
+enum EventType { wedding, birth, death, reunion, religious, other }
 
 /// Extension for EventType enum
 extension EventTypeExtension on EventType {
@@ -27,40 +20,6 @@ extension EventTypeExtension on EventType {
         return 'religious';
       case EventType.other:
         return 'other';
-    }
-  }
-
-  String get displayName {
-    switch (this) {
-      case EventType.wedding:
-        return 'Mariage';
-      case EventType.birth:
-        return 'Naissance';
-      case EventType.death:
-        return 'Décès';
-      case EventType.reunion:
-        return 'Réunion familiale';
-      case EventType.religious:
-        return 'Fête religieuse';
-      case EventType.other:
-        return 'Autre';
-    }
-  }
-
-  String get displayNameAr {
-    switch (this) {
-      case EventType.wedding:
-        return 'زواج';
-      case EventType.birth:
-        return 'ولادة';
-      case EventType.death:
-        return 'وفاة';
-      case EventType.reunion:
-        return 'لقاء عائلي';
-      case EventType.religious:
-        return 'مناسبة دينية';
-      case EventType.other:
-        return 'أخرى';
     }
   }
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'config/theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/language_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/pending_approval_screen.dart';
 import 'screens/home/main_screen.dart';
@@ -13,22 +15,32 @@ class FamilleTreeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Arbre Familial',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme(false),
-      // Localization support for Arabic and French
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        // Add other global providers here if needed
       ],
-      supportedLocales: const [
-        Locale('fr', 'FR'), // French
-        Locale('ar', 'SA'), // Arabic
-      ],
-      locale: const Locale('fr', 'FR'), // Default locale
-      home: const AuthWrapper(),
+      child: Consumer<LanguageProvider>(
+        builder: (context, languageProvider, child) {
+          return MaterialApp(
+            onGenerateTitle: (context) =>
+                AppLocalizations.of(context)!.appTitle,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme(false),
+            // Localization support for Arabic and French
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: languageProvider.locale,
+            home: const AuthWrapper(),
+          );
+        },
+      ),
     );
   }
 }

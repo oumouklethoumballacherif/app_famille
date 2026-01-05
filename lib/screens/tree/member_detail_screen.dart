@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../config/theme.dart';
 import '../../models/family_member_model.dart';
 import '../../providers/family_provider.dart';
-// import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Member Detail Screen - Shows full profile of a family member
 class MemberDetailScreen extends StatelessWidget {
@@ -101,9 +101,7 @@ class MemberDetailScreen extends StatelessWidget {
 
                   // Deceased overlay
                   if (member.status == VitalStatus.deceased)
-                    Container(
-                      color: Colors.black.withValues(alpha: 0.3),
-                    ),
+                    Container(color: Colors.black.withValues(alpha: 0.3)),
                 ],
               ),
               title: Text(
@@ -138,13 +136,10 @@ class MemberDetailScreen extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.badge,
-                                color: genderColor,
-                              ),
+                              Icon(Icons.badge, color: genderColor),
                               const SizedBox(width: 8),
                               Text(
-                                'Nom Complet',
+                                AppLocalizations.of(context)!.fullNameLabel,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
@@ -152,9 +147,7 @@ class MemberDetailScreen extends StatelessWidget {
                           const SizedBox(height: 12),
                           Text(
                             member.fullName,
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
+                            style: Theme.of(context).textTheme.headlineSmall
                                 ?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: AppTheme.textPrimary,
@@ -168,12 +161,13 @@ class MemberDetailScreen extends StatelessWidget {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: AppTheme.deceasedColor
-                                    .withValues(alpha: 0.1),
+                                color: AppTheme.deceasedColor.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                '${member.status.displayName} - ${member.status.deceasedPhrase}',
+                                '${_getStatusDisplayName(context, member.status)}${member.status == VitalStatus.deceased ? ' - ${AppLocalizations.of(context)!.statusDeceased}' : ''}',
                                 style: TextStyle(
                                   color: AppTheme.deceasedColor,
                                   fontWeight: FontWeight.w500,
@@ -196,13 +190,10 @@ class MemberDetailScreen extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.info_outline,
-                                color: genderColor,
-                              ),
+                              Icon(Icons.info_outline, color: genderColor),
                               const SizedBox(width: 8),
                               Text(
-                                'Informations',
+                                AppLocalizations.of(context)!.infoTitle,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
@@ -211,14 +202,16 @@ class MemberDetailScreen extends StatelessWidget {
                           _buildInfoRow(
                             context,
                             Icons.cake,
-                            'Date de naissance',
-                            DateFormat('dd MMMM yyyy', 'fr_FR')
-                                .format(member.birthDate),
+                            AppLocalizations.of(context)!.birthDateLabel,
+                            DateFormat(
+                              'dd MMMM yyyy',
+                              Localizations.localeOf(context).toString(),
+                            ).format(member.birthDate),
                           ),
                           _buildInfoRow(
                             context,
                             Icons.location_on,
-                            'Lieu de naissance',
+                            AppLocalizations.of(context)!.birthPlaceLabel,
                             member.birthPlace,
                           ),
                           _buildInfoRow(
@@ -226,28 +219,30 @@ class MemberDetailScreen extends StatelessWidget {
                             member.gender == Gender.male
                                 ? Icons.male
                                 : Icons.female,
-                            'Sexe',
-                            member.gender.displayName,
+                            AppLocalizations.of(context)!.genderLabel,
+                            _getGenderDisplayName(context, member.gender),
                           ),
                           _buildInfoRow(
                             context,
                             Icons.format_list_numbered,
-                            'Rang dans la fratrie',
+                            AppLocalizations.of(context)!.siblingRankLabel,
                             '${member.siblingRank}${_getOrdinalSuffix(member.siblingRank)}',
                           ),
                           _buildInfoRow(
                             context,
                             Icons.access_time,
-                            'Âge',
-                            '${member.age} ans',
+                            AppLocalizations.of(context)!.ageLabel,
+                            '${member.age} ${AppLocalizations.of(context)!.yearsSuffix}',
                           ),
                           if (member.deathDate != null)
                             _buildInfoRow(
                               context,
                               Icons.event,
-                              'Date de décès',
-                              DateFormat('dd MMMM yyyy', 'fr_FR')
-                                  .format(member.deathDate!),
+                              AppLocalizations.of(context)!.deathDateLabel,
+                              DateFormat(
+                                'dd MMMM yyyy',
+                                Localizations.localeOf(context).toString(),
+                              ).format(member.deathDate!),
                             ),
                         ],
                       ),
@@ -264,13 +259,12 @@ class MemberDetailScreen extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.family_restroom,
-                                color: genderColor,
-                              ),
+                              Icon(Icons.family_restroom, color: genderColor),
                               const SizedBox(width: 8),
                               Text(
-                                'Liens Familiaux',
+                                AppLocalizations.of(
+                                  context,
+                                )!.familyRelationsTitle,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                             ],
@@ -279,21 +273,23 @@ class MemberDetailScreen extends StatelessWidget {
                           if (father != null)
                             _buildRelationRow(
                               context,
-                              'Père',
+                              AppLocalizations.of(context)!.fatherLabel,
                               father,
                               AppTheme.maleColor,
                             ),
                           if (mother != null)
                             _buildRelationRow(
                               context,
-                              'Mère',
+                              AppLocalizations.of(context)!.motherLabel,
                               mother,
                               AppTheme.femaleColor,
                             ),
                           if (spouse != null)
                             _buildRelationRow(
                               context,
-                              member.gender == Gender.male ? 'Épouse' : 'Époux',
+                              member.gender == Gender.male
+                                  ? AppLocalizations.of(context)!.wifeLabel
+                                  : AppLocalizations.of(context)!.husbandLabel,
                               spouse,
                               spouse.gender == Gender.male
                                   ? AppTheme.maleColor
@@ -302,28 +298,34 @@ class MemberDetailScreen extends StatelessWidget {
                           if (children.isNotEmpty) ...[
                             const SizedBox(height: 12),
                             Text(
-                              'Enfants (${children.length})',
+                              '${AppLocalizations.of(context)!.childrenLabel} (${children.length})',
                               style: Theme.of(context).textTheme.titleSmall,
                             ),
                             const SizedBox(height: 8),
-                            ...children.map((child) => _buildRelationRow(
-                                  context,
-                                  child.gender == Gender.male
-                                      ? 'Fils'
-                                      : 'Fille',
-                                  child,
-                                  child.gender == Gender.male
-                                      ? AppTheme.maleColor
-                                      : AppTheme.femaleColor,
-                                )),
+                            ...children.map(
+                              (child) => _buildRelationRow(
+                                context,
+                                child.gender == Gender.male
+                                    ? AppLocalizations.of(context)!.sonLabel
+                                    : AppLocalizations.of(
+                                        context,
+                                      )!.daughterLabel,
+                                child,
+                                child.gender == Gender.male
+                                    ? AppTheme.maleColor
+                                    : AppTheme.femaleColor,
+                              ),
+                            ),
                           ],
                           if (father == null &&
                               mother == null &&
                               spouse == null &&
                               children.isEmpty)
-                            const Text(
-                              'Aucun lien familial enregistré',
-                              style: TextStyle(color: AppTheme.textSecondary),
+                            Text(
+                              AppLocalizations.of(context)!.noRelations,
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                              ),
                             ),
                         ],
                       ),
@@ -341,15 +343,13 @@ class MemberDetailScreen extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Icon(
-                                  Icons.notes,
-                                  color: genderColor,
-                                ),
+                                Icon(Icons.notes, color: genderColor),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Notes',
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
+                                  AppLocalizations.of(context)!.notesTitle,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
                                 ),
                               ],
                             ),
@@ -387,15 +387,12 @@ class MemberDetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
+                Text(label, style: Theme.of(context).textTheme.bodySmall),
                 Text(
                   value,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -439,15 +436,12 @@ class MemberDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    relation,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(relation, style: Theme.of(context).textTheme.bodySmall),
                   Text(
                     relative.fullName,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -457,6 +451,22 @@ class MemberDetailScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getStatusDisplayName(BuildContext context, VitalStatus status) {
+    if (status == VitalStatus.alive) {
+      return AppLocalizations.of(context)!.statusAlive;
+    } else {
+      return AppLocalizations.of(context)!.statusDeceased;
+    }
+  }
+
+  String _getGenderDisplayName(BuildContext context, Gender gender) {
+    if (gender == Gender.male) {
+      return AppLocalizations.of(context)!.genderMale;
+    } else {
+      return AppLocalizations.of(context)!.genderFemale;
+    }
   }
 
   String _getOrdinalSuffix(int number) {

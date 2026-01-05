@@ -5,6 +5,7 @@ import '../../config/theme.dart';
 import '../../models/event_model.dart';
 import '../../providers/event_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Screen for creating a new family event
 class CreateEventScreen extends StatefulWidget {
@@ -41,7 +42,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       initialDate: _date,
       firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
-      locale: const Locale('fr', 'FR'),
+      locale: Localizations.localeOf(context),
     );
     if (picked != null) {
       setState(() => _date = picked);
@@ -92,8 +93,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     if (mounted) {
       if (result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Événement créé avec succès'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.eventCreatedSuccess),
             backgroundColor: AppTheme.successColor,
           ),
         );
@@ -101,7 +102,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(eventProvider.error ?? 'Erreur lors de la création'),
+            content: Text(
+              eventProvider.error ??
+                  AppLocalizations.of(context)!.eventCreationErrorDefault,
+            ),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -109,14 +113,32 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     }
   }
 
+  String _getEventTypeDisplayName(BuildContext context, EventType type) {
+    switch (type) {
+      case EventType.wedding:
+        return AppLocalizations.of(context)!.eventTypeWedding;
+      case EventType.birth:
+        return AppLocalizations.of(context)!.eventTypeBirth;
+      case EventType.death:
+        return AppLocalizations.of(context)!.eventTypeDeath;
+      case EventType.reunion:
+        return AppLocalizations.of(context)!.eventTypeReunion;
+      case EventType.religious:
+        return AppLocalizations.of(context)!.eventTypeReligious;
+      case EventType.other:
+        return AppLocalizations.of(context)!.eventTypeOther;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('EEEE d MMMM yyyy', 'fr_FR');
+    final dateFormat = DateFormat(
+      'EEEE d MMMM yyyy',
+      Localizations.localeOf(context).toString(),
+    );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nouvel événement'),
-      ),
+      appBar: AppBar(title: const Text('Nouvel événement')),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -126,10 +148,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
             children: [
               // Event Type Selection
               Text(
-                'Type d\'événement',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                AppLocalizations.of(context)!.eventTypeLabel,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -167,7 +189,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            type.displayName,
+                            _getEventTypeDisplayName(context, type),
                             style: TextStyle(
                               color: isSelected
                                   ? type.color
@@ -187,27 +209,24 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
               // Title
               Text(
-                'Détails',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                AppLocalizations.of(context)!.detailsSection,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
-                  labelText: 'Titre *',
-                  prefixIcon: Icon(
-                    _eventType.icon,
-                    color: _eventType.color,
-                  ),
-                  hintText: 'Ex: Mariage de Ahmed et Fatima',
+                  labelText: AppLocalizations.of(context)!.eventTitleLabel,
+                  prefixIcon: Icon(_eventType.icon, color: _eventType.color),
+                  hintText: AppLocalizations.of(context)!.eventTitleHint,
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Le titre est obligatoire';
+                    return AppLocalizations.of(context)!.eventTitleError;
                   }
                   return null;
                 },
@@ -219,9 +238,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 onTap: _selectDate,
                 borderRadius: BorderRadius.circular(12),
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Date *',
-                    prefixIcon: Icon(Icons.calendar_today),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.eventDateLabel,
+                    prefixIcon: const Icon(Icons.calendar_today),
                   ),
                   child: Text(dateFormat.format(_date)),
                 ),
@@ -233,14 +252,14 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 onTap: _selectTime,
                 borderRadius: BorderRadius.circular(12),
                 child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Heure (optionnel)',
-                    prefixIcon: Icon(Icons.access_time),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.eventTimeLabel,
+                    prefixIcon: const Icon(Icons.access_time),
                   ),
                   child: Text(
                     _time != null
                         ? '${_time!.hour.toString().padLeft(2, '0')}:${_time!.minute.toString().padLeft(2, '0')}'
-                        : 'Ajouter une heure',
+                        : '--:--',
                   ),
                 ),
               ),
@@ -248,28 +267,28 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
               // Location Section
               Text(
-                'Lieu (optionnel)',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                AppLocalizations.of(context)!.locationSection,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: _locationController,
-                decoration: const InputDecoration(
-                  labelText: 'Adresse ou nom du lieu',
-                  prefixIcon: Icon(Icons.location_on),
-                  hintText: 'Ex: Salle des fêtes, Casablanca',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.eventLocationLabel,
+                  prefixIcon: const Icon(Icons.location_on),
+                  hintText: AppLocalizations.of(context)!.eventLocationHint,
                 ),
               ),
               const SizedBox(height: 16),
 
               TextFormField(
                 controller: _locationUrlController,
-                decoration: const InputDecoration(
-                  labelText: 'Lien Google Maps',
-                  prefixIcon: Icon(Icons.map),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.eventMapsUrlLabel,
+                  prefixIcon: const Icon(Icons.map),
                   hintText: 'https://goo.gl/maps/...',
                 ),
                 keyboardType: TextInputType.url,
@@ -278,19 +297,19 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
               // Description
               Text(
-                'Description (optionnel)',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                AppLocalizations.of(context)!.descriptionLabel,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
 
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  prefixIcon: Icon(Icons.notes),
-                  hintText: 'Informations supplémentaires...',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.descriptionLabel,
+                  prefixIcon: const Icon(Icons.notes),
+                  hintText: AppLocalizations.of(context)!.eventDescriptionHint,
                 ),
                 maxLines: 4,
               ),
@@ -311,7 +330,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           ),
                         )
                       : const Icon(Icons.send),
-                  label: const Text('Créer l\'événement'),
+                  label: Text(AppLocalizations.of(context)!.createEventAction),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: _eventType.color,
@@ -337,10 +356,10 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Tous les membres recevront une notification pour cet événement.',
+                        AppLocalizations.of(context)!.eventNotificationInfo,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.primaryColor,
-                            ),
+                          color: AppTheme.primaryColor,
+                        ),
                       ),
                     ),
                   ],

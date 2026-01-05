@@ -7,6 +7,7 @@ import '../search/search_screen.dart';
 import '../events/events_screen.dart';
 import '../profile/profile_screen.dart';
 import '../admin/admin_dashboard_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Main screen with bottom navigation
 class MainScreen extends StatefulWidget {
@@ -26,26 +27,26 @@ class _MainScreenState extends State<MainScreen> {
     ProfileScreen(),
   ];
 
-  final List<BottomNavigationBarItem> _navItems = const [
+  List<BottomNavigationBarItem> _navItems(BuildContext context) => [
     BottomNavigationBarItem(
-      icon: Icon(Icons.account_tree_outlined),
-      activeIcon: Icon(Icons.account_tree),
-      label: 'Arbres',
+      icon: const Icon(Icons.account_tree_outlined),
+      activeIcon: const Icon(Icons.account_tree),
+      label: AppLocalizations.of(context)!.navTrees,
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.search_outlined),
-      activeIcon: Icon(Icons.search),
-      label: 'Recherche',
+      icon: const Icon(Icons.search_outlined),
+      activeIcon: const Icon(Icons.search),
+      label: AppLocalizations.of(context)!.navSearch,
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.event_outlined),
-      activeIcon: Icon(Icons.event),
-      label: 'Événements',
+      icon: const Icon(Icons.event_outlined),
+      activeIcon: const Icon(Icons.event),
+      label: AppLocalizations.of(context)!.navEvents,
     ),
     BottomNavigationBarItem(
-      icon: Icon(Icons.person_outline),
-      activeIcon: Icon(Icons.person),
-      label: 'Profil',
+      icon: const Icon(Icons.person_outline),
+      activeIcon: const Icon(Icons.person),
+      label: AppLocalizations.of(context)!.navProfile,
     ),
   ];
 
@@ -69,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) => setState(() => _currentIndex = index),
-          items: _navItems,
+          items: _navItems(context),
           type: BottomNavigationBarType.fixed,
           selectedItemColor: AppTheme.primaryColor,
           unselectedItemColor: AppTheme.textSecondary,

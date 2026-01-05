@@ -187,4 +187,15 @@ class AuthService {
 
     return snapshot.docs.map((doc) => AppUser.fromFirestore(doc)).toList();
   }
+
+  /// DEBUG ONLY: Promote self to admin
+  Future<void> promoteSelfToAdmin() async {
+    final user = currentUser;
+    if (user != null) {
+      await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(user.uid)
+          .update({'role': 'admin', 'isApproved': true});
+    }
+  }
 }

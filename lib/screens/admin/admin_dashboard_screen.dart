@@ -7,6 +7,7 @@ import '../../providers/event_provider.dart';
 import 'user_management_screen.dart';
 import '../trees/trees_screen.dart';
 import 'create_event_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Admin Dashboard Screen
 class AdminDashboardScreen extends StatelessWidget {
@@ -22,7 +23,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Administration'),
+        title: Text(AppLocalizations.of(context)!.adminTitle),
         backgroundColor: AppTheme.accentColor,
       ),
       body: SingleChildScrollView(
@@ -55,7 +56,7 @@ class AdminDashboardScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Panel Administrateur',
+                            AppLocalizations.of(context)!.adminPanel,
                             style: Theme.of(context).textTheme.titleLarge
                                 ?.copyWith(
                                   color: Colors.white,
@@ -79,7 +80,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
             // Statistics
             Text(
-              'Statistiques',
+              AppLocalizations.of(context)!.statisticsTitle,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -91,7 +92,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   child: _buildStatCard(
                     context,
                     Icons.people,
-                    'Membres',
+                    AppLocalizations.of(context)!.membersStat,
                     stats['total'].toString(),
                     AppTheme.primaryColor,
                   ),
@@ -101,7 +102,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   child: _buildStatCard(
                     context,
                     Icons.event,
-                    'Événements',
+                    AppLocalizations.of(context)!.eventsStat,
                     eventProvider.events.length.toString(),
                     AppTheme.accentColor,
                   ),
@@ -112,7 +113,7 @@ class AdminDashboardScreen extends StatelessWidget {
 
             // Quick Actions
             Text(
-              'Actions rapides',
+              AppLocalizations.of(context)!.quickActionsTitle,
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -123,8 +124,8 @@ class AdminDashboardScreen extends StatelessWidget {
             _buildActionCard(
               context,
               Icons.people_alt,
-              'Gestion des utilisateurs',
-              'Valider les inscriptions, nommer des modérateurs',
+              AppLocalizations.of(context)!.manageUsersAction,
+              AppLocalizations.of(context)!.manageUsersSubtitle,
               AppTheme.maleColor,
               () => Navigator.push(
                 context,
@@ -136,8 +137,8 @@ class AdminDashboardScreen extends StatelessWidget {
             _buildActionCard(
               context,
               Icons.person_add,
-              'Gérer les arbres',
-              'Créer un arbre et ajouter des membres',
+              AppLocalizations.of(context)!.manageTreesAction,
+              AppLocalizations.of(context)!.manageTreesSubtitle,
               AppTheme.successColor,
               () => Navigator.push(
                 context,
@@ -149,8 +150,8 @@ class AdminDashboardScreen extends StatelessWidget {
             _buildActionCard(
               context,
               Icons.event_available,
-              'Créer un événement',
-              'Annoncer un mariage, une naissance ou une réunion',
+              AppLocalizations.of(context)!.createEventAction,
+              AppLocalizations.of(context)!.createEventSubtitle,
               AppTheme.femaleColor,
               () => Navigator.push(
                 context,

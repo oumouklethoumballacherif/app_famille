@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../models/user_model.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 
 /// User Management Screen for Admin
 class UserManagementScreen extends StatefulWidget {
@@ -47,16 +48,18 @@ class _UserManagementScreenState extends State<UserManagementScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestion des utilisateurs'),
+        title: Text(AppLocalizations.of(context)!.manageUsersAction),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(
-              text: 'En attente (${_pendingUsers.length})',
+              text:
+                  '${AppLocalizations.of(context)!.pendingTab} (${_pendingUsers.length})',
               icon: const Icon(Icons.hourglass_empty),
             ),
             Tab(
-              text: 'Approuvés (${_approvedUsers.length})',
+              text:
+                  '${AppLocalizations.of(context)!.approvedTab} (${_approvedUsers.length})',
               icon: const Icon(Icons.check_circle),
             ),
           ],
@@ -66,10 +69,7 @@ class _UserManagementScreenState extends State<UserManagementScreen>
           ? const Center(child: CircularProgressIndicator())
           : TabBarView(
               controller: _tabController,
-              children: [
-                _buildPendingList(),
-                _buildApprovedList(),
-              ],
+              children: [_buildPendingList(), _buildApprovedList()],
             ),
     );
   }
@@ -87,10 +87,10 @@ class _UserManagementScreenState extends State<UserManagementScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'Aucune demande en attente',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+              AppLocalizations.of(context)!.noPendingRequests,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: AppTheme.textSecondary),
             ),
           ],
         ),
@@ -122,10 +122,7 @@ class _UserManagementScreenState extends State<UserManagementScreen>
               children: [
                 CircleAvatar(
                   backgroundColor: AppTheme.warningColor.withValues(alpha: 0.2),
-                  child: const Icon(
-                    Icons.person,
-                    color: AppTheme.warningColor,
-                  ),
+                  child: const Icon(Icons.person, color: AppTheme.warningColor),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -134,10 +131,8 @@ class _UserManagementScreenState extends State<UserManagementScreen>
                     children: [
                       Text(
                         user.email,
-                        style:
-                            Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       if (user.phone != null)
                         Text(
@@ -156,7 +151,7 @@ class _UserManagementScreenState extends State<UserManagementScreen>
                 OutlinedButton.icon(
                   onPressed: () => _rejectUser(user),
                   icon: const Icon(Icons.close),
-                  label: const Text('Refuser'),
+                  label: Text(AppLocalizations.of(context)!.rejectAction),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.errorColor,
                     side: const BorderSide(color: AppTheme.errorColor),
@@ -166,7 +161,7 @@ class _UserManagementScreenState extends State<UserManagementScreen>
                 ElevatedButton.icon(
                   onPressed: () => _approveUser(user),
                   icon: const Icon(Icons.check),
-                  label: const Text('Approuver'),
+                  label: Text(AppLocalizations.of(context)!.approveAction),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppTheme.successColor,
                   ),
@@ -181,9 +176,7 @@ class _UserManagementScreenState extends State<UserManagementScreen>
 
   Widget _buildApprovedList() {
     if (_approvedUsers.isEmpty) {
-      return const Center(
-        child: Text('Aucun utilisateur approuvé'),
-      );
+      return Center(child: Text(AppLocalizations.of(context)!.noApprovedUsers));
     }
 
     return RefreshIndicator(
@@ -205,28 +198,25 @@ class _UserManagementScreenState extends State<UserManagementScreen>
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: _getRoleColor(user.role).withValues(alpha: 0.2),
-          child: Icon(
-            _getRoleIcon(user.role),
-            color: _getRoleColor(user.role),
-          ),
+          child: Icon(_getRoleIcon(user.role), color: _getRoleColor(user.role)),
         ),
         title: Text(user.email),
-        subtitle: Text(_getRoleDisplayName(user.role)),
+        subtitle: Text(_getRoleDisplayName(context, user.role)),
         trailing: PopupMenuButton<UserRole>(
           icon: const Icon(Icons.more_vert),
           onSelected: (role) => _changeUserRole(user, role),
           itemBuilder: (context) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: UserRole.member,
-              child: Text('Membre'),
+              child: Text(AppLocalizations.of(context)!.roleMember),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: UserRole.moderator,
-              child: Text('Modérateur'),
+              child: Text(AppLocalizations.of(context)!.roleModerator),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: UserRole.admin,
-              child: Text('Administrateur'),
+              child: Text(AppLocalizations.of(context)!.roleAdmin),
             ),
           ],
         ),
@@ -240,7 +230,9 @@ class _UserManagementScreenState extends State<UserManagementScreen>
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${user.email} a été approuvé'),
+          content: Text(
+            AppLocalizations.of(context)!.userApprovedMessage(user.email),
+          ),
           backgroundColor: AppTheme.successColor,
         ),
       );
@@ -260,21 +252,21 @@ class _UserManagementScreenState extends State<UserManagementScreen>
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirmer le refus'),
+        title: Text(AppLocalizations.of(context)!.confirmRejectTitle),
         content: Text(
-          'Voulez-vous vraiment refuser et supprimer la demande de ${user.email} ?',
+          AppLocalizations.of(context)!.confirmRejectMessage(user.email),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
             ),
-            child: const Text('Refuser'),
+            child: Text(AppLocalizations.of(context)!.rejectAction),
           ),
         ],
       ),
@@ -287,8 +279,8 @@ class _UserManagementScreenState extends State<UserManagementScreen>
         await context.read<AuthProvider>().rejectUser(user.uid);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Demande refusée'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.requestRejectedMessage),
             backgroundColor: AppTheme.warningColor,
           ),
         );
@@ -312,7 +304,10 @@ class _UserManagementScreenState extends State<UserManagementScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${user.email} est maintenant ${_getRoleDisplayName(newRole)}',
+            AppLocalizations.of(context)!.roleChangedMessage(
+              user.email,
+              _getRoleDisplayName(context, newRole),
+            ),
           ),
           backgroundColor: AppTheme.successColor,
         ),
@@ -351,14 +346,14 @@ class _UserManagementScreenState extends State<UserManagementScreen>
     }
   }
 
-  String _getRoleDisplayName(UserRole role) {
+  String _getRoleDisplayName(BuildContext context, UserRole role) {
     switch (role) {
       case UserRole.admin:
-        return 'Administrateur';
+        return AppLocalizations.of(context)!.roleAdmin;
       case UserRole.moderator:
-        return 'Modérateur';
+        return AppLocalizations.of(context)!.roleModerator;
       case UserRole.member:
-        return 'Membre';
+        return AppLocalizations.of(context)!.roleMember;
     }
   }
 }

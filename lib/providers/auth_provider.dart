@@ -34,12 +34,13 @@ class AuthProvider extends ChangeNotifier {
       if (firebaseUser != null) {
         // Subscribe to user document changes
         _userSubscription?.cancel();
-        _userSubscription =
-            _authService.appUserStream(firebaseUser.uid).listen((appUser) {
-          _currentUser = appUser;
-          _isLoading = false;
-          notifyListeners();
-        });
+        _userSubscription = _authService.appUserStream(firebaseUser.uid).listen(
+          (appUser) {
+            _currentUser = appUser;
+            _isLoading = false;
+            notifyListeners();
+          },
+        );
       } else {
         _currentUser = null;
         _isLoading = false;
@@ -50,19 +51,13 @@ class AuthProvider extends ChangeNotifier {
   }
 
   /// Sign in with email and password
-  Future<bool> signIn({
-    required String email,
-    required String password,
-  }) async {
+  Future<bool> signIn({required String email, required String password}) async {
     try {
       _error = null;
       _isLoading = true;
       notifyListeners();
 
-      final user = await _authService.signIn(
-        email: email,
-        password: password,
-      );
+      final user = await _authService.signIn(email: email, password: password);
 
       _isLoading = false;
 
@@ -168,6 +163,11 @@ class AuthProvider extends ChangeNotifier {
   /// Get all approved users
   Future<List<AppUser>> getAllApprovedUsers() async {
     return await _authService.getAllApprovedUsers();
+  }
+
+  /// DEBUG: Promote self to admin
+  Future<void> promoteSelfToAdmin() async {
+    await _authService.promoteSelfToAdmin();
   }
 
   @override

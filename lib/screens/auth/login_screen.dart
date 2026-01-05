@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
 import '../../providers/auth_provider.dart';
+import '../../l10n/app_localizations.dart';
 import 'register_screen.dart';
 
 /// Login Screen
@@ -42,7 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(authProvider.error ?? 'Erreur de connexion'),
+          content: Text(
+            authProvider.error ?? AppLocalizations.of(context)!.loginError,
+          ),
           backgroundColor: AppTheme.errorColor,
         ),
       );
@@ -62,19 +65,19 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Réinitialiser le mot de passe'),
+        title: Text(AppLocalizations.of(context)!.resetPasswordTitle),
         content: TextField(
           controller: emailController,
           keyboardType: TextInputType.emailAddress,
-          decoration: const InputDecoration(
-            labelText: 'Email',
-            hintText: 'Entrez votre adresse email',
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context)!.emailLabel,
+            hintText: AppLocalizations.of(context)!.enterEmailHint,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancelButton),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -89,16 +92,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   SnackBar(
                     content: Text(
                       success
-                          ? 'Email de réinitialisation envoyé'
-                          : authProvider.error ?? 'Erreur',
+                          ? AppLocalizations.of(context)!.resetEmailSent
+                          : authProvider.error ??
+                                AppLocalizations.of(context)!.genericError,
                     ),
-                    backgroundColor:
-                        success ? AppTheme.successColor : AppTheme.errorColor,
+                    backgroundColor: success
+                        ? AppTheme.successColor
+                        : AppTheme.errorColor,
                   ),
                 );
               }
             },
-            child: const Text('Envoyer'),
+            child: Text(AppLocalizations.of(context)!.sendButton),
           ),
         ],
       ),
@@ -134,20 +139,20 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
 
                 Text(
-                  'Arbre Familial',
+                  AppLocalizations.of(context)!.appTitle,
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
 
                 Text(
-                  'Connectez-vous pour accéder à votre arbre généalogique',
+                  AppLocalizations.of(context)!.loginSubtitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
+                    color: AppTheme.textSecondary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),
@@ -157,16 +162,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.emailLabel,
+                    prefixIcon: const Icon(Icons.email_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre email';
+                      return AppLocalizations.of(context)!.enterEmailError;
                     }
                     if (!value.contains('@') || !value.contains('.')) {
-                      return 'Veuillez entrer un email valide';
+                      return AppLocalizations.of(context)!.invalidEmailError;
                     }
                     return null;
                   },
@@ -180,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _handleLogin(),
                   decoration: InputDecoration(
-                    labelText: 'Mot de passe',
+                    labelText: AppLocalizations.of(context)!.passwordLabel,
                     prefixIcon: const Icon(Icons.lock_outlined),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -197,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre mot de passe';
+                      return AppLocalizations.of(context)!.enterPasswordError;
                     }
                     return null;
                   },
@@ -209,7 +214,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: _showForgotPasswordDialog,
-                    child: const Text('Mot de passe oublié ?'),
+                    child: Text(
+                      AppLocalizations.of(context)!.forgotPasswordButton,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -229,9 +236,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text(
-                          'Se connecter',
-                          style: TextStyle(fontSize: 16),
+                      : Text(
+                          AppLocalizations.of(context)!.loginButton,
+                          style: const TextStyle(fontSize: 16),
                         ),
                 ),
                 const SizedBox(height: 16),
@@ -240,10 +247,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('Pas encore de compte ?'),
+                    Text(AppLocalizations.of(context)!.notYetAccount),
                     TextButton(
                       onPressed: _navigateToRegister,
-                      child: const Text('S\'inscrire'),
+                      child: Text(AppLocalizations.of(context)!.signupButton),
                     ),
                   ],
                 ),
