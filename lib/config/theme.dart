@@ -4,29 +4,31 @@ import 'package:google_fonts/google_fonts.dart';
 /// App theme configuration with support for RTL and gender-based colors
 class AppTheme {
   // Primary Colors
-  static const Color primaryColor = Color(0xFF2D5A4B); // Dark green
-  static const Color primaryLight = Color(0xFF4A7C6C);
-  static const Color primaryDark = Color(0xFF1A3D30);
+  static const Color primaryColor = Color(0xFFD5CABC); // Beige/Taupe
+  static const Color primaryLight = Color(0xFFE6DED5);
+  static const Color primaryDark = Color(0xFFA69B8F);
 
   // Accent Colors
-  static const Color accentColor = Color(0xFFD4AF37); // Gold
-  static const Color accentLight = Color(0xFFE8C755);
+  static const Color accentColor = Color(
+    0xFFD5CABC,
+  ); // Same as primary for consistency in this palette
+  static const Color accentLight = Color(0xFFE6DED5);
 
   // Gender Colors
-  static const Color maleColor = Color(0xFF3498DB); // Blue
-  static const Color maleColorLight = Color(0xFFAED6F1);
-  static const Color femaleColor = Color(0xFFE91E8C); // Pink
-  static const Color femaleColorLight = Color(0xFFF8BBD9);
+  static const Color maleColor = Color(0xFFF5EFE6); // Creamy White for boys
+  static const Color maleColorLight = Color(0xFFFFFFFF);
+  static const Color femaleColor = Color(0xFFF4CFDF); // Soft pink for girls
+  static const Color femaleColorLight = Color(0xFFFCE4EC);
 
   // Status Colors
-  static const Color successColor = Color(0xFF27AE60);
-  static const Color warningColor = Color(0xFFF39C12);
-  static const Color errorColor = Color(0xFFE74C3C);
-  static const Color deceasedColor = Color(0xFF7F8C8D);
+  static const Color successColor = Color(0xFF81C784); // Muted Green
+  static const Color warningColor = Color(0xFFFFB74D); // Muted Orange
+  static const Color errorColor = Color(0xFFE57373); // Muted Red
+  static const Color deceasedColor = Color(0xFF90A4AE); // Muted Blue Grey
 
   // Background Colors
-  static const Color backgroundColor = Color(0xFFF5F5F5);
-  static const Color surfaceColor = Colors.white;
+  static const Color backgroundColor = Color(0xFFF0EEE9); // Light Beigy/Grey
+  static const Color surfaceColor = Color(0xFFF8F7F5);
   static const Color cardColor = Colors.white;
 
   // Text Colors
@@ -61,9 +63,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: cardColor,
         elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -157,18 +157,9 @@ class AppTheme {
           fontWeight: FontWeight.w500,
           color: textPrimary,
         ),
-        bodyLarge: GoogleFonts.cairo(
-          fontSize: 16,
-          color: textPrimary,
-        ),
-        bodyMedium: GoogleFonts.cairo(
-          fontSize: 14,
-          color: textPrimary,
-        ),
-        bodySmall: GoogleFonts.cairo(
-          fontSize: 12,
-          color: textSecondary,
-        ),
+        bodyLarge: GoogleFonts.cairo(fontSize: 16, color: textPrimary),
+        bodyMedium: GoogleFonts.cairo(fontSize: 14, color: textPrimary),
+        bodySmall: GoogleFonts.cairo(fontSize: 12, color: textSecondary),
       ),
     );
   }

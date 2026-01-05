@@ -8,7 +8,9 @@ import '../../providers/auth_provider.dart';
 
 /// Screen for creating a new family event
 class CreateEventScreen extends StatefulWidget {
-  const CreateEventScreen({super.key});
+  final FamilyEvent? eventToEdit;
+
+  const CreateEventScreen({super.key, this.eventToEdit});
 
   @override
   State<CreateEventScreen> createState() => _CreateEventScreenState();
@@ -16,15 +18,32 @@ class CreateEventScreen extends StatefulWidget {
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _locationUrlController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  late TextEditingController _titleController;
+  late TextEditingController _locationController;
+  late TextEditingController _locationUrlController;
+  late TextEditingController _descriptionController;
 
-  EventType _eventType = EventType.reunion;
-  DateTime _date = DateTime.now();
+  late EventType _eventType;
+  late DateTime _date;
   TimeOfDay? _time;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final event = widget.eventToEdit;
+    _titleController = TextEditingController(text: event?.title ?? '');
+    _locationController = TextEditingController(text: event?.location ?? '');
+    _locationUrlController = TextEditingController(
+      text: event?.locationUrl ?? '',
+    );
+    _descriptionController = TextEditingController(
+      text: event?.description ?? '',
+    );
+    _eventType = event?.type ?? EventType.reunion;
+    _date = event?.date ?? DateTime.now();
+    _time = event?.time;
+  }
 
   @override
   void dispose() {
@@ -67,7 +86,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final eventProvider = context.read<EventProvider>();
 
     final event = FamilyEvent(
-      id: '', // Will be generated
+      id: widget.eventToEdit?.id ?? '',
       title: _titleController.text.trim(),
       type: _eventType,
       date: _date,
@@ -81,19 +100,33 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       description: _descriptionController.text.trim().isNotEmpty
           ? _descriptionController.text.trim()
           : null,
-      createdBy: authProvider.currentUser?.uid ?? '',
-      createdAt: DateTime.now(),
+      relatedMemberIds: widget.eventToEdit?.relatedMemberIds ?? [],
+      imageUrl: widget.eventToEdit?.imageUrl,
+      createdBy:
+          widget.eventToEdit?.createdBy ?? authProvider.currentUser?.uid ?? '',
+      createdAt: widget.eventToEdit?.createdAt ?? DateTime.now(),
+      isNotificationSent: widget.eventToEdit?.isNotificationSent ?? false,
     );
 
-    final result = await eventProvider.addEvent(event);
+    final String? result;
+    if (widget.eventToEdit != null) {
+      final success = await eventProvider.updateEvent(event);
+      result = success ? event.id : null;
+    } else {
+      result = await eventProvider.addEvent(event);
+    }
 
     setState(() => _isLoading = false);
 
     if (mounted) {
       if (result != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Événement créé avec succès'),
+          SnackBar(
+            content: Text(
+              widget.eventToEdit != null
+                  ? 'Événement modifié avec succès'
+                  : 'Événement créé avec succès',
+            ),
             backgroundColor: AppTheme.successColor,
           ),
         );
@@ -101,7 +134,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(eventProvider.error ?? 'Erreur lors de la création'),
+            content: Text(
+              eventProvider.error ?? 'Erreur lors de l\'enregistrement',
+            ),
             backgroundColor: AppTheme.errorColor,
           ),
         );
@@ -115,7 +150,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nouvel événement'),
+        title: Text(
+          widget.eventToEdit != null
+              ? 'Modifier l\'événement'
+              : 'Nouvel événement',
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -127,9 +166,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               // Event Type Selection
               Text(
                 'Type d\'événement',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -188,9 +227,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               // Title
               Text(
                 'Détails',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
 
@@ -198,10 +237,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Titre *',
-                  prefixIcon: Icon(
-                    _eventType.icon,
-                    color: _eventType.color,
-                  ),
+                  prefixIcon: Icon(_eventType.icon, color: _eventType.color),
                   hintText: 'Ex: Mariage de Ahmed et Fatima',
                 ),
                 textCapitalization: TextCapitalization.sentences,
@@ -249,9 +285,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               // Location Section
               Text(
                 'Lieu (optionnel)',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
 
@@ -279,9 +315,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
               // Description
               Text(
                 'Description (optionnel)',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
 
@@ -311,7 +347,11 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                           ),
                         )
                       : const Icon(Icons.send),
-                  label: const Text('Créer l\'événement'),
+                  label: Text(
+                    widget.eventToEdit != null
+                        ? 'Enregistrer les modifications'
+                        : 'Créer l\'événement',
+                  ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: _eventType.color,
@@ -339,8 +379,8 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       child: Text(
                         'Tous les membres recevront une notification pour cet événement.',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppTheme.primaryColor,
-                            ),
+                          color: AppTheme.primaryColor,
+                        ),
                       ),
                     ),
                   ],

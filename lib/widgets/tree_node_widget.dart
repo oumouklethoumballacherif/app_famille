@@ -8,11 +8,7 @@ class TreeNodeWidget extends StatelessWidget {
   final FamilyMember member;
   final double size;
 
-  const TreeNodeWidget({
-    super.key,
-    required this.member,
-    this.size = 120,
-  });
+  const TreeNodeWidget({super.key, required this.member, this.size = 120});
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +22,11 @@ class TreeNodeWidget extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: isDeceased
-            ? AppTheme.deceasedColor.withValues(alpha: 0.1)
-            : genderColor.withValues(alpha: 0.1),
+            ? AppTheme.deceasedColor.withValues(alpha: 0.3)
+            : genderColor, // Solid pastel color
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDeceased ? AppTheme.deceasedColor : genderColor,
+          color: isDeceased ? AppTheme.deceasedColor : AppTheme.primaryDark,
           width: 2,
         ),
         boxShadow: [
@@ -49,9 +45,7 @@ class TreeNodeWidget extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 28,
-                backgroundColor: isDeceased
-                    ? AppTheme.deceasedColor.withValues(alpha: 0.3)
-                    : genderColor.withValues(alpha: 0.3),
+                backgroundColor: Colors.white.withValues(alpha: 0.5),
                 child: member.photoUrl != null
                     ? ClipOval(
                         child: CachedNetworkImage(
@@ -64,14 +58,14 @@ class TreeNodeWidget extends StatelessWidget {
                                 ? Icons.person
                                 : Icons.person_2,
                             size: 28,
-                            color: genderColor,
+                            color: AppTheme.primaryDark,
                           ),
                           errorWidget: (_, __, ___) => Icon(
                             member.gender == Gender.male
                                 ? Icons.person
                                 : Icons.person_2,
                             size: 28,
-                            color: genderColor,
+                            color: AppTheme.primaryDark,
                           ),
                         ),
                       )
@@ -80,8 +74,9 @@ class TreeNodeWidget extends StatelessWidget {
                             ? Icons.person
                             : Icons.person_2,
                         size: 28,
-                        color:
-                            isDeceased ? AppTheme.deceasedColor : genderColor,
+                        color: isDeceased
+                            ? AppTheme.deceasedColor
+                            : AppTheme.primaryDark,
                       ),
               ),
               // Deceased indicator

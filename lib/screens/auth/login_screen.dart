@@ -37,6 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
       password: _passwordController.text,
     );
 
+    if (!mounted) return;
     setState(() => _isLoading = false);
 
     if (!success && mounted) {
@@ -92,8 +93,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? 'Email de réinitialisation envoyé'
                           : authProvider.error ?? 'Erreur',
                     ),
-                    backgroundColor:
-                        success ? AppTheme.successColor : AppTheme.errorColor,
+                    backgroundColor: success
+                        ? AppTheme.successColor
+                        : AppTheme.errorColor,
                   ),
                 );
               }
@@ -136,9 +138,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   'Arbre Familial',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
@@ -146,8 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   'Connectez-vous pour accéder à votre arbre généalogique',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
+                    color: AppTheme.textSecondary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 48),

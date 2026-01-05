@@ -19,22 +19,18 @@ class EventsScreen extends StatelessWidget {
     final canCreateEvents = authProvider.canCreateEvents;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Événements'),
-      ),
+      appBar: AppBar(title: const Text('Événements')),
       body: eventProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : eventProvider.events.isEmpty
-              ? _buildEmptyState(context)
-              : _buildEventsList(context, eventProvider),
+          ? _buildEmptyState(context)
+          : _buildEventsList(context, eventProvider),
       floatingActionButton: canCreateEvents
           ? FloatingActionButton.extended(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => const CreateEventScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const CreateEventScreen()),
                 );
               },
               icon: const Icon(Icons.add),
@@ -61,16 +57,16 @@ class EventsScreen extends StatelessWidget {
             Text(
               'Aucun événement',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+                color: AppTheme.textSecondary,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             Text(
               'Les événements familiaux apparaîtront ici',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -81,8 +77,9 @@ class EventsScreen extends StatelessWidget {
 
   Widget _buildEventsList(BuildContext context, EventProvider eventProvider) {
     final upcomingEvents = eventProvider.upcomingEvents;
-    final pastEvents =
-        eventProvider.events.where((e) => !e.isUpcoming && !e.isToday).toList();
+    final pastEvents = eventProvider.events
+        .where((e) => !e.isUpcoming && !e.isToday)
+        .toList();
     final todayEvents = eventProvider.todayEvents;
 
     return SingleChildScrollView(
@@ -120,23 +117,29 @@ class EventsScreen extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(
-      BuildContext context, String title, IconData icon) {
+    BuildContext context,
+    String title,
+    IconData icon,
+  ) {
     return Row(
       children: [
         Icon(icon, color: AppTheme.primaryColor),
         const SizedBox(width: 8),
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
       ],
     );
   }
 
-  Widget _buildEventCard(BuildContext context, FamilyEvent event,
-      {bool isPast = false}) {
+  Widget _buildEventCard(
+    BuildContext context,
+    FamilyEvent event, {
+    bool isPast = false,
+  }) {
     final dateFormat = DateFormat('EEEE d MMMM yyyy', 'fr_FR');
 
     return Card(
@@ -171,11 +174,11 @@ class EventsScreen extends StatelessWidget {
                     Text(
                       event.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: isPast
-                                ? AppTheme.textSecondary
-                                : AppTheme.textPrimary,
-                          ),
+                        fontWeight: FontWeight.w600,
+                        color: isPast
+                            ? AppTheme.textSecondary
+                            : AppTheme.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -188,10 +191,8 @@ class EventsScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           dateFormat.format(event.date),
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppTheme.textSecondary),
                         ),
                       ],
                     ),
@@ -208,12 +209,8 @@ class EventsScreen extends StatelessWidget {
                           Expanded(
                             child: Text(
                               event.location!,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    color: AppTheme.textSecondary,
-                                  ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: AppTheme.textSecondary),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -304,12 +301,8 @@ class EventsScreen extends StatelessWidget {
                       children: [
                         Text(
                           event.title,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Container(
                           margin: const EdgeInsets.only(top: 4),
@@ -371,8 +364,8 @@ class EventsScreen extends StatelessWidget {
                 Text(
                   'Description',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -390,13 +383,66 @@ class EventsScreen extends StatelessWidget {
                     onPressed: () async {
                       final uri = Uri.parse(event.locationUrl!);
                       if (await canLaunchUrl(uri)) {
-                        await launchUrl(uri,
-                            mode: LaunchMode.externalApplication);
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
                       }
                     },
                     icon: const Icon(Icons.map),
                     label: const Text('Ouvrir dans Google Maps'),
                   ),
+                ),
+              ],
+
+              // Edit/Delete Actions
+              if (Provider.of<AuthProvider>(
+                context,
+                listen: false,
+              ).canCreateEvents) ...[
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context); // Close sheet
+                          _showDeleteConfirmation(context, event);
+                        },
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Supprimer'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.errorColor,
+                          side: const BorderSide(color: AppTheme.errorColor),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context); // Close sheet
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  CreateEventScreen(eventToEdit: event),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                        label: const Text('Modifier'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppTheme.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ],
@@ -421,17 +467,61 @@ class EventsScreen extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              Text(label, style: Theme.of(context).textTheme.bodySmall),
               Text(
                 value,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, FamilyEvent event) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Supprimer l\'événement'),
+        content: Text(
+          'Êtes-vous sûr de vouloir supprimer l\'événement "${event.title}" ?\nCette action est irréversible.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx); // Close dialog
+              final provider = context.read<EventProvider>();
+              final success = await provider.deleteEvent(event.id);
+
+              if (context.mounted) {
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Événement supprimé avec succès'),
+                      backgroundColor: AppTheme.successColor,
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        provider.error ?? 'Erreur lors de la suppression',
+                      ),
+                      backgroundColor: AppTheme.errorColor,
+                    ),
+                  );
+                }
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: AppTheme.errorColor),
+            child: const Text('Supprimer'),
           ),
         ],
       ),
