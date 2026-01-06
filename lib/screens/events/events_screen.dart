@@ -273,12 +273,12 @@ class EventsScreen extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => DraggableScrollableSheet(
+      builder: (sheetContext) => DraggableScrollableSheet(
         initialChildSize: 0.6,
         minChildSize: 0.4,
         maxChildSize: 0.9,
         expand: false,
-        builder: (context, scrollController) => SingleChildScrollView(
+        builder: (scrollContext, scrollController) => SingleChildScrollView(
           controller: scrollController,
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -320,7 +320,7 @@ class EventsScreen extends StatelessWidget {
                       children: [
                         Text(
                           event.title,
-                          style: Theme.of(context).textTheme.headlineSmall
+                          style: Theme.of(scrollContext).textTheme.headlineSmall
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Container(
@@ -334,7 +334,7 @@ class EventsScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
-                            _getEventTypeDisplayName(context, event.type),
+                            _getEventTypeDisplayName(sheetContext, event.type),
                             style: TextStyle(
                               color: event.type.color,
                               fontWeight: FontWeight.w500,
@@ -352,27 +352,27 @@ class EventsScreen extends StatelessWidget {
 
               // Date
               _buildDetailRow(
-                context,
+                sheetContext,
                 Icons.calendar_today,
-                AppLocalizations.of(context)!.eventDateLabel,
+                AppLocalizations.of(sheetContext)!.eventDateLabel,
                 dateFormat.format(event.date),
               ),
 
               // Time
               if (event.time != null)
                 _buildDetailRow(
-                  context,
+                  sheetContext,
                   Icons.access_time,
-                  AppLocalizations.of(context)!.timeLabel,
+                  AppLocalizations.of(sheetContext)!.timeLabel,
                   '${event.time!.hour.toString().padLeft(2, '0')}:${event.time!.minute.toString().padLeft(2, '0')}',
                 ),
 
               // Location
               if (event.location != null)
                 _buildDetailRow(
-                  context,
+                  sheetContext,
                   Icons.location_on,
-                  AppLocalizations.of(context)!.locationLabel,
+                  AppLocalizations.of(sheetContext)!.locationLabel,
                   event.location!,
                 ),
 
@@ -381,15 +381,15 @@ class EventsScreen extends StatelessWidget {
                   event.description!.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(context)!.descriptionLabel,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  AppLocalizations.of(sheetContext)!.descriptionLabel,
+                  style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   event.description!,
-                  style: Theme.of(context).textTheme.bodyLarge,
+                  style: Theme.of(sheetContext).textTheme.bodyLarge,
                 ),
               ],
 
@@ -409,14 +409,16 @@ class EventsScreen extends StatelessWidget {
                       }
                     },
                     icon: const Icon(Icons.map),
-                    label: Text(AppLocalizations.of(context)!.openMapButton),
+                    label: Text(
+                      AppLocalizations.of(sheetContext)!.openMapButton,
+                    ),
                   ),
                 ),
               ],
 
               // Edit/Delete Actions
               if (Provider.of<AuthProvider>(
-                context,
+                sheetContext,
                 listen: false,
               ).canCreateEvents) ...[
                 const SizedBox(height: 32),
@@ -427,7 +429,7 @@ class EventsScreen extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: () {
-                          Navigator.pop(context); // Close sheet
+                          Navigator.pop(sheetContext); // Close sheet
                           _showDeleteConfirmation(context, event);
                         },
                         icon: const Icon(Icons.delete),
@@ -443,7 +445,7 @@ class EventsScreen extends StatelessWidget {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.pop(context); // Close sheet
+                          Navigator.pop(sheetContext); // Close sheet
                           Navigator.push(
                             context,
                             MaterialPageRoute(

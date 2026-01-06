@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import '../../config/theme.dart';
-import '../../providers/auth_provider.dart';
+
 import '../trees/trees_screen.dart';
 import '../search/search_screen.dart';
 import '../events/events_screen.dart';
 import '../profile/profile_screen.dart';
-import '../admin/admin_dashboard_screen.dart';
+
 import '../../l10n/app_localizations.dart';
 
 /// Main screen with bottom navigation
@@ -52,9 +52,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final isAdmin = authProvider.isAdmin;
-
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
       bottomNavigationBar: Container(
@@ -78,21 +75,8 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       // Admin FAB
-      floatingActionButton: isAdmin
-          ? FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const AdminDashboardScreen(),
-                  ),
-                );
-              },
-              backgroundColor: AppTheme.accentColor,
-              heroTag: 'admin_fab',
-              child: const Icon(Icons.admin_panel_settings),
-            )
-          : null,
+      // Admin FAB removed
+      floatingActionButton: null,
     );
   }
 }

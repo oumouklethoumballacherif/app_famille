@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../l10n/app_localizations.dart';
+import '../admin/user_management_screen.dart';
 
 /// User Profile Screen
 class ProfileScreen extends StatelessWidget {
@@ -48,12 +49,8 @@ class ProfileScreen extends StatelessWidget {
                       backgroundColor: AppTheme.primaryColor.withValues(
                         alpha: 0.2,
                       ),
-                      child: Icon(
-                        currentUser?.role.index == 0
-                            ? Icons.admin_panel_settings
-                            : currentUser?.role.index == 1
-                            ? Icons.shield
-                            : Icons.person,
+                      child: const Icon(
+                        Icons.person,
                         size: 50,
                         color: AppTheme.primaryColor,
                       ),
@@ -291,51 +288,43 @@ class ProfileScreen extends StatelessWidget {
               ),
             const SizedBox(height: 16),
 
-            // Permissions Info
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            // Admin Management Section
+            if (authProvider.isAdmin)
+              Card(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserManagementScreen(),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
                       children: [
                         const Icon(
-                          Icons.security,
+                          Icons.admin_panel_settings,
                           color: AppTheme.primaryColor,
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          AppLocalizations.of(context)!.permissionsTitle,
-                          style: Theme.of(context).textTheme.titleMedium,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            AppLocalizations.of(context)!.manageUsersAction,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: AppTheme.textSecondary,
                         ),
                       ],
                     ),
-                    const Divider(height: 24),
-                    _buildPermissionRow(
-                      context,
-                      AppLocalizations.of(context)!.permissionViewTree,
-                      true,
-                    ),
-                    _buildPermissionRow(
-                      context,
-                      AppLocalizations.of(context)!.permissionEditMembers,
-                      authProvider.canEditMembers,
-                    ),
-                    _buildPermissionRow(
-                      context,
-                      AppLocalizations.of(context)!.permissionCreateEvents,
-                      authProvider.canCreateEvents,
-                    ),
-                    _buildPermissionRow(
-                      context,
-                      AppLocalizations.of(context)!.permissionManageUsers,
-                      authProvider.isAdmin,
-                    ),
-                  ],
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 32),
 
             // Logout Button
@@ -399,27 +388,6 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPermissionRow(
-    BuildContext context,
-    String permission,
-    bool allowed,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Icon(
-            allowed ? Icons.check_circle : Icons.cancel,
-            size: 20,
-            color: allowed ? AppTheme.successColor : AppTheme.errorColor,
-          ),
-          const SizedBox(width: 12),
-          Text(permission, style: Theme.of(context).textTheme.bodyMedium),
         ],
       ),
     );

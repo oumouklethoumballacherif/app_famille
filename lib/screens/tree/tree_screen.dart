@@ -5,7 +5,10 @@ import '../../providers/family_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tree_provider.dart';
 import '../../widgets/member_card.dart';
+import '../../widgets/member_card_widget.dart';
+import '../../widgets/family_stats_widget.dart';
 import 'branch_screen.dart';
+import 'member_detail_screen.dart';
 
 import '../admin/add_member_screen.dart';
 import '../../l10n/app_localizations.dart';
@@ -19,26 +22,23 @@ class TreeScreen extends StatefulWidget {
 }
 
 class _TreeScreenState extends State<TreeScreen> {
-  final TransformationController _transformationController =
-      TransformationController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Load members for the selected tree when screen opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final treeProvider = context.read<TreeProvider>();
-      final familyProvider = context.read<FamilyProvider>();
-      if (treeProvider.selectedTree != null) {
-        familyProvider.loadMembersForTree(treeProvider.selectedTree!.id);
-      }
-    });
-  }
+  final _searchController = TextEditingController();
+  final _focusNode = FocusNode();
 
   @override
   void dispose() {
-    _transformationController.dispose();
+    _searchController.dispose();
+    _focusNode.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    context.read<FamilyProvider>().search(query);
+  }
+
+  void _clearSearch() {
+    _searchController.clear();
+    context.read<FamilyProvider>().clearSearch();
   }
 
   @override
@@ -108,8 +108,48 @@ class _TreeScreenState extends State<TreeScreen> {
           ? const Center(child: CircularProgressIndicator())
           : familyProvider.members.isEmpty
           ? _buildEmptyState(context, canEdit, selectedTree.id)
-          : _buildTree(context, familyProvider),
-      floatingActionButton: canEdit
+          : Column(
+              children: [
+                // Search Bar
+                Container(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  color: Colors.white,
+                  child: TextField(
+                    controller: _searchController,
+                    focusNode: _focusNode,
+                    onChanged: _onSearchChanged,
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.searchHint,
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: _clearSearch,
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Content
+                Expanded(
+                  child: familyProvider.searchQuery.isEmpty
+                      ? _buildTree(context, familyProvider)
+                      : _buildSearchResults(context, familyProvider),
+                ),
+              ],
+            ),
+      floatingActionButton: canEdit && familyProvider.searchQuery.isEmpty
           ? FloatingActionButton.extended(
               onPressed: () {
                 Navigator.push(
@@ -126,6 +166,58 @@ class _TreeScreenState extends State<TreeScreen> {
               elevation: 4,
             )
           : null,
+    );
+  }
+
+  Widget _buildSearchResults(
+    BuildContext context,
+    FamilyProvider familyProvider,
+  ) {
+    final results = familyProvider.searchResults;
+
+    if (results.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 80,
+              color: AppTheme.textSecondary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)!.noSearchResults,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(color: AppTheme.textSecondary),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final member = results[index];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: MemberCardWidget(
+            member: member,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MemberDetailScreen(member: member),
+                ),
+              );
+            },
+            highlightQuery: familyProvider.searchQuery,
+          ),
+        );
+      },
     );
   }
 
@@ -191,55 +283,21 @@ class _TreeScreenState extends State<TreeScreen> {
 
   Widget _buildTree(BuildContext context, FamilyProvider familyProvider) {
     final rootMembers = familyProvider.rootMembers;
+    final stats = familyProvider.getStatistics();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Instructions
+          // Statistics
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.touch_app_rounded,
-                      color: AppTheme.primaryColor,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      "Tap on a family head to explore their lineage.", // Hardcoded fallback or use l10n
-                      style: TextStyle(
-                        color: AppTheme.primaryDark,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            child: FamilyStatsWidget(stats: stats),
           ),
           const SizedBox(height: 24),
+          const Divider(),
+          const SizedBox(height: 16),
 
           // Root Members List
           if (rootMembers.isEmpty)
@@ -251,16 +309,22 @@ class _TreeScreenState extends State<TreeScreen> {
               itemCount: rootMembers.length,
               itemBuilder: (context, index) {
                 final root = rootMembers[index];
-                return MemberCard(
-                  member: root,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BranchScreen(member: root),
-                      ),
-                    );
-                  },
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  child: MemberCard(
+                    member: root,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BranchScreen(member: root),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),

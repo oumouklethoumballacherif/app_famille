@@ -40,7 +40,7 @@ class AppUser {
   final UserRole role;
   final bool isApproved;
   final String?
-      linkedMemberId; // Link to their family member profile if applicable
+  linkedMemberId; // Link to their family member profile if applicable
   final DateTime createdAt;
   final DateTime? lastLoginAt;
 
@@ -79,8 +79,9 @@ class AppUser {
       'isApproved': isApproved,
       'linkedMemberId': linkedMemberId,
       'createdAt': Timestamp.fromDate(createdAt),
-      'lastLoginAt':
-          lastLoginAt != null ? Timestamp.fromDate(lastLoginAt!) : null,
+      'lastLoginAt': lastLoginAt != null
+          ? Timestamp.fromDate(lastLoginAt!)
+          : null,
     };
   }
 
@@ -114,8 +115,9 @@ class AppUser {
   bool get canEditMembers =>
       role == UserRole.admin || role == UserRole.moderator;
 
-  /// Check if user can create events (admin only)
-  bool get canCreateEvents => role == UserRole.admin;
+  /// Check if user can create events (admin or moderator)
+  bool get canCreateEvents =>
+      role == UserRole.admin || role == UserRole.moderator;
 
   /// Check if user can manage users (admin only)
   bool get canManageUsers => role == UserRole.admin;
