@@ -5,7 +5,9 @@ import '../../models/family_member_model.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tree_provider.dart';
-import '../../widgets/tree_node_widget.dart';
+import '../../widgets/member_card.dart';
+import 'branch_screen.dart';
+
 import 'member_detail_screen.dart';
 import '../admin/add_member_screen.dart';
 import '../../l10n/app_localizations.dart';
@@ -59,14 +61,20 @@ class _TreeScreenState extends State<TreeScreen> {
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xFFFAFBFC), // Snow white/ very light grey
       appBar: AppBar(
-        title: Text(selectedTree.name),
+        title: Text(
+          selectedTree.name,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        foregroundColor: AppTheme.textPrimary,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              _transformationController.value = Matrix4.identity();
               familyProvider.loadMembersForTree(selectedTree.id);
             },
             tooltip: AppLocalizations.of(context)!.resetTooltip,
@@ -92,6 +100,7 @@ class _TreeScreenState extends State<TreeScreen> {
               label: Text(AppLocalizations.of(context)!.addMemberButton),
               heroTag: 'add_member_fab',
               backgroundColor: AppTheme.primaryColor,
+              elevation: 4,
             )
           : null,
     );
@@ -140,6 +149,15 @@ class _TreeScreenState extends State<TreeScreen> {
                 },
                 icon: const Icon(Icons.person_add),
                 label: Text(AppLocalizations.of(context)!.addFirstMemberButton),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
               ),
             ],
           ],
@@ -151,112 +169,82 @@ class _TreeScreenState extends State<TreeScreen> {
   Widget _buildTree(BuildContext context, FamilyProvider familyProvider) {
     final rootMembers = familyProvider.rootMembers;
 
-    return InteractiveViewer(
-      transformationController: _transformationController,
-      minScale: 0.3,
-      maxScale: 3.0,
-      boundaryMargin: const EdgeInsets.all(double.infinity),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              children: [
-                // Instructions
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.touch_app,
-                        size: 16,
-                        color: AppTheme.primaryColor,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.treeInstructions,
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 32),
-
-                // Tree
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: rootMembers.map((member) {
-                    return _buildMemberBranch(context, member, familyProvider);
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMemberBranch(
-    BuildContext context,
-    FamilyMember member,
-    FamilyProvider familyProvider,
-  ) {
-    final children = familyProvider.getChildren(member.id);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 24),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Member node
-          GestureDetector(
-            onTap: () => _showMemberDetail(context, member),
-            child: TreeNodeWidget(member: member),
+          // Instructions
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.touch_app_rounded,
+                      color: AppTheme.primaryColor,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Tap on a family head to explore their lineage.", // Hardcoded fallback or use l10n
+                      style: TextStyle(
+                        color: AppTheme.primaryDark,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+          const SizedBox(height: 24),
 
-          // Connection line to children
-          if (children.isNotEmpty) ...[
-            Container(
-              width: 2,
-              height: 24,
-              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+          // Root Members List
+          if (rootMembers.isEmpty)
+            Center(child: Text("No family roots found."))
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: rootMembers.length,
+              itemBuilder: (context, index) {
+                final root = rootMembers[index];
+                return MemberCard(
+                  member: root,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BranchScreen(member: root),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-            Container(
-              height: 2,
-              width: children.length * 150.0,
-              color: AppTheme.primaryColor.withValues(alpha: 0.3),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: children.map((child) {
-                return _buildMemberBranch(context, child, familyProvider);
-              }).toList(),
-            ),
-          ],
+
+          const SizedBox(height: 80),
         ],
       ),
-    );
-  }
-
-  void _showMemberDetail(BuildContext context, FamilyMember member) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => MemberDetailScreen(member: member)),
     );
   }
 }
