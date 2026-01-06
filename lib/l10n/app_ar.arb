@@ -232,5 +232,7 @@
     "eventLocationHint": "مثال: قاعة الحفلات، الدار البيضاء",
     "eventDescriptionHint": "معلومات إضافية...",
     "eventCreatedSuccess": "تم إنشاء الحدث بنجاح",
-    "eventCreationErrorDefault": "خطأ أثناء إنشاء الحدث"
+    "eventCreationErrorDefault": "خطأ أثناء إنشاء الحدث",
+    "success": "تمت العملية بنجاح"
 }
+

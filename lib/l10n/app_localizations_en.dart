@@ -665,4 +665,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eventCreationErrorDefault => 'Error creating event';
+
+  @override
+  String get success => 'Operation successful';
 }

@@ -1377,6 +1377,12 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur lors de la création'**
   String get eventCreationErrorDefault;
+
+  /// No description provided for @success.
+  ///
+  /// In fr, this message translates to:
+  /// **'Opération réussie'**
+  String get success;
 }
 
 class _AppLocalizationsDelegate

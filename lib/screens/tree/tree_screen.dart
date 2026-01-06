@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../config/theme.dart';
-import '../../models/family_member_model.dart';
 import '../../providers/family_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tree_provider.dart';
 import '../../widgets/member_card.dart';
 import 'branch_screen.dart';
 
-import 'member_detail_screen.dart';
 import '../admin/add_member_screen.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -72,6 +70,31 @@ class _TreeScreenState extends State<TreeScreen> {
         elevation: 0,
         foregroundColor: AppTheme.textPrimary,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.sync),
+            onPressed: () async {
+              // Show loading dialog
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) =>
+                    const Center(child: CircularProgressIndicator()),
+              );
+
+              await familyProvider.recalculateAllSiblingRanks();
+
+              if (mounted) {
+                Navigator.pop(context); // Close loading dialog
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.treeUpdated),
+                    backgroundColor: AppTheme.successColor,
+                  ),
+                );
+              }
+            },
+            tooltip: 'إعادة حساب الترتيب',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {

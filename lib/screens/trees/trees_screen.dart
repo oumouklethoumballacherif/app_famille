@@ -220,12 +220,13 @@ class _TreesScreenState extends State<TreesScreen> {
   }
 
   Future<void> _navigateToCreateTree(BuildContext context) async {
+    final treeProvider = context.read<TreeProvider>();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const CreateTreeScreen()),
     );
     if (mounted) {
-      context.read<TreeProvider>().loadTrees();
+      treeProvider.loadTrees();
     }
   }
 
@@ -233,59 +234,61 @@ class _TreesScreenState extends State<TreesScreen> {
     BuildContext context,
     FamilyTree tree,
   ) async {
+    final treeProvider = context.read<TreeProvider>();
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CreateTreeScreen(tree: tree)),
     );
     if (mounted) {
-      context.read<TreeProvider>().loadTrees();
+      treeProvider.loadTrees();
     }
   }
 
   Future<void> _navigateToTree(BuildContext context, FamilyTree tree) async {
-    context.read<TreeProvider>().selectTree(tree);
+    final treeProvider = context.read<TreeProvider>();
+    treeProvider.selectTree(tree);
     await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const TreeScreen()),
     );
     if (mounted) {
-      context.read<TreeProvider>().loadTrees();
+      treeProvider.loadTrees();
     }
   }
 
   Future<void> _confirmDeleteTree(BuildContext context, FamilyTree tree) async {
+    final treeProvider = context.read<TreeProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final localizations = AppLocalizations.of(context)!;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.deleteTreeTitle),
-        content: Text(
-          AppLocalizations.of(context)!.deleteTreeConfirmation(tree.name),
-        ),
+        title: Text(localizations.deleteTreeTitle),
+        content: Text(localizations.deleteTreeConfirmation(tree.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancelButton),
+            child: Text(localizations.cancelButton),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
             ),
-            child: Text(AppLocalizations.of(context)!.deleteAction),
+            child: Text(localizations.deleteAction),
           ),
         ],
       ),
     );
 
     if (confirmed == true && mounted) {
-      final success = await context.read<TreeProvider>().deleteTree(tree.id);
+      final success = await treeProvider.deleteTree(tree.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(
             content: Text(
-              success
-                  ? AppLocalizations.of(context)!.treeDeleted
-                  : AppLocalizations.of(context)!.deleteError,
+              success ? localizations.treeDeleted : localizations.deleteError,
             ),
             backgroundColor: success
                 ? AppTheme.successColor

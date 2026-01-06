@@ -226,5 +226,7 @@
     "eventLocationHint": "Ex: Party Hall, Casablanca",
     "eventDescriptionHint": "Additional information...",
     "eventCreatedSuccess": "Event created successfully",
-    "eventCreationErrorDefault": "Error creating event"
+    "eventCreationErrorDefault": "Error creating event",
+    "success": "Operation successful"
 }
+

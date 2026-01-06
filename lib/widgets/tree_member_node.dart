@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/family_member_model.dart';
 import '../providers/family_provider.dart';
-import '../config/theme.dart';
 import '../screens/tree/member_detail_screen.dart';
 
 class TreeMemberNode extends StatefulWidget {
@@ -90,12 +89,16 @@ class _TreeMemberNodeState extends State<TreeMemberNode>
     final children = familyProvider.getChildren(widget.member.id);
     final hasChildren = children.isNotEmpty;
 
-    // Organic Palette
+    // Organic Palette - Gender-based colors with deceased handling
+    final isDeceased = widget.member.status == VitalStatus.deceased;
     final isMale = widget.member.gender == Gender.male;
-    final primaryColor = isMale
-        ? const Color(0xFF5E81AC)
-        : const Color(0xFFD08770); // Nordic Blue / Soft Orange
-    final cardColor = Colors.white;
+    final genderColor = isMale
+        ? const Color(0xFF5E81AC) // Nordic Blue for male
+        : const Color(0xFFD08770); // Soft Orange for female
+    final primaryColor = isDeceased
+        ? genderColor.withValues(alpha: 0.5)
+        : genderColor;
+    final cardColor = isDeceased ? Colors.grey[100]! : Colors.white;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,20 +199,31 @@ class _TreeMemberNodeState extends State<TreeMemberNode>
                                             : null,
                                       ),
                                     ),
-                                    // Gender indicator dot
+                                    // Status/Gender indicator dot
                                     Positioned(
                                       right: 0,
                                       bottom: 0,
                                       child: Container(
-                                        width: 14,
-                                        height: 14,
+                                        width: 16,
+                                        height: 16,
                                         decoration: BoxDecoration(
-                                          color: primaryColor,
+                                          color: isDeceased
+                                              ? Colors.grey[600]
+                                              : genderColor,
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: Colors.white,
                                             width: 2,
                                           ),
+                                        ),
+                                        child: Icon(
+                                          isDeceased
+                                              ? Icons.brightness_2
+                                              : (isMale
+                                                    ? Icons.male
+                                                    : Icons.female),
+                                          size: 10,
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ),
@@ -226,25 +240,25 @@ class _TreeMemberNodeState extends State<TreeMemberNode>
                                     children: [
                                       Text(
                                         widget.member.firstName,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 16,
-                                          color: Color(0xFF2E3440),
+                                          color: isDeceased
+                                              ? const Color(0xFF6B7280)
+                                              : const Color(0xFF2E3440),
                                           letterSpacing: 0.2,
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                       ),
-                                      if (widget.member.birthDate != null)
-                                        Text(
-                                          widget.member.birthDate!.year
-                                              .toString(),
-                                          style: TextStyle(
-                                            color: const Color(0xFFAEBACD),
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                      Text(
+                                        widget.member.birthDate.year.toString(),
+                                        style: TextStyle(
+                                          color: const Color(0xFFAEBACD),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
                                         ),
+                                      ),
                                     ],
                                   ),
                                 ),

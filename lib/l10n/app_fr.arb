@@ -230,5 +230,7 @@
     "eventLocationHint": "Ex: Salle des fêtes, Casablanca",
     "eventDescriptionHint": "Informations supplémentaires...",
     "eventCreatedSuccess": "Événement créé avec succès",
-    "eventCreationErrorDefault": "Erreur lors de la création"
+    "eventCreationErrorDefault": "Erreur lors de la création",
+    "success": "Opération réussie"
 }
+

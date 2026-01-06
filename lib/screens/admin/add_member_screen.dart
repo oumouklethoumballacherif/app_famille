@@ -302,6 +302,19 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                 AppLocalizations.of(context)!.siblingRankLabel,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
+              const SizedBox(height: 4),
+              Text(
+                Localizations.localeOf(context).languageCode == 'ar'
+                    ? "سيتم تعديل الترتيب تلقائياً بناءً على تاريخ الميلاد لضمان منطقية الشجرة."
+                    : Localizations.localeOf(context).languageCode == 'fr'
+                    ? "Le rang sera ajusté automatiquement selon la date de naissance."
+                    : "Rank will be adjusted automatically based on birth date.",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
               const SizedBox(height: 8),
               Row(
                 children: [

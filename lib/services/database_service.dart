@@ -111,7 +111,7 @@ class DatabaseService {
       query = query.where('treeId', isEqualTo: treeId);
     }
 
-    final snapshot = await query.orderBy('firstName').get();
+    final snapshot = await query.orderBy('birthDate').get();
     return snapshot.docs
         .map((doc) => FamilyMember.fromFirestore(doc as DocumentSnapshot))
         .toList();
@@ -126,7 +126,7 @@ class DatabaseService {
     }
 
     return query
-        .orderBy('firstName')
+        .orderBy('birthDate')
         .snapshots()
         .map(
           (snapshot) => snapshot.docs

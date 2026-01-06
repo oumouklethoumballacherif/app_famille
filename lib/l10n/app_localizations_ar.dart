@@ -661,4 +661,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get eventCreationErrorDefault => 'خطأ أثناء إنشاء الحدث';
+
+  @override
+  String get success => 'تمت العملية بنجاح';
 }

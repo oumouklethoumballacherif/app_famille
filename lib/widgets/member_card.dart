@@ -16,11 +16,17 @@ class MemberCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Palette
+    // Palette - Gender-based colors
+    final isDeceased = member.status == VitalStatus.deceased;
     final isMale = member.gender == Gender.male;
-    final primaryColor = isMale
-        ? const Color(0xFF5E81AC)
-        : const Color(0xFFD08770);
+    final genderColor = isMale
+        ? const Color(0xFF5E81AC) // Blue for male
+        : const Color(0xFFD08770); // Orange/Pink for female
+
+    // Muted color for deceased
+    final primaryColor = isDeceased
+        ? genderColor.withValues(alpha: 0.5)
+        : genderColor;
 
     return GestureDetector(
       onTap: onTap,
@@ -28,7 +34,7 @@ class MemberCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         padding: EdgeInsets.all(isFeatured ? 24 : 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDeceased ? Colors.grey[100] : Colors.white,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
@@ -54,33 +60,80 @@ class MemberCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Avatar
-            Hero(
-              tag: 'avatar_${member.id}_${isFeatured ? 'featured' : 'list'}',
-              child: Container(
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: primaryColor.withValues(alpha: 0.2),
-                    width: 2,
+            // Avatar with deceased indicator
+            Stack(
+              children: [
+                Hero(
+                  tag:
+                      'avatar_${member.id}_${isFeatured ? "featured" : "list"}',
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: genderColor.withValues(
+                          alpha: isDeceased ? 0.3 : 0.4,
+                        ),
+                        width: 2,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: isFeatured ? 36 : 28,
+                      backgroundColor: isDeceased
+                          ? Colors.grey[200]
+                          : Colors.grey[50],
+                      backgroundImage: member.photoUrl != null
+                          ? NetworkImage(member.photoUrl!)
+                          : null,
+                      child: member.photoUrl == null
+                          ? Icon(
+                              Icons.person,
+                              size: isFeatured ? 36 : 28,
+                              color: primaryColor.withValues(alpha: 0.5),
+                            )
+                          : null,
+                    ),
                   ),
                 ),
-                child: CircleAvatar(
-                  radius: isFeatured ? 36 : 28,
-                  backgroundColor: Colors.grey[50],
-                  backgroundImage: member.photoUrl != null
-                      ? NetworkImage(member.photoUrl!)
-                      : null,
-                  child: member.photoUrl == null
-                      ? Icon(
-                          Icons.person,
-                          size: isFeatured ? 36 : 28,
-                          color: primaryColor.withValues(alpha: 0.5),
-                        )
-                      : null,
-                ),
-              ),
+                // Deceased indicator badge
+                if (isDeceased)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[600],
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: const Icon(
+                        Icons.brightness_2,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                // Gender indicator (when alive)
+                if (!isDeceased)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: genderColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Icon(
+                        isMale ? Icons.male : Icons.female,
+                        size: 12,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
             ),
             SizedBox(width: isFeatured ? 20 : 16),
 
@@ -94,31 +147,69 @@ class MemberCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: isFeatured ? 22 : 17,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF2E3440),
+                      color: isDeceased
+                          ? const Color(0xFF6B7280)
+                          : const Color(0xFF2E3440),
                       letterSpacing: 0.3,
                     ),
                   ),
-                  if (member.birthDate != null) ...[
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: primaryColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        member.birthDate!.year.toString(),
-                        style: TextStyle(
-                          color: primaryColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: genderColor.withValues(
+                            alpha: isDeceased ? 0.1 : 0.15,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          member.birthDate.year.toString(),
+                          style: TextStyle(
+                            color: isDeceased ? Colors.grey[600] : genderColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      if (isDeceased) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.brightness_2,
+                                size: 10,
+                                color: Colors.grey[600],
+                              ),
+                              const SizedBox(width: 3),
+                              Text(
+                                'متوفي',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
             ),

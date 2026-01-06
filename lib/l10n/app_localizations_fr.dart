@@ -670,4 +670,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get eventCreationErrorDefault => 'Erreur lors de la création';
+
+  @override
+  String get success => 'Opération réussie';
 }

@@ -71,9 +71,13 @@ class FamilyProvider extends ChangeNotifier {
       _familyTree[parentKey]!.add(member);
     }
 
-    // Sort children by sibling rank
+    // Sort children by sibling rank, then by birth date
     for (final children in _familyTree.values) {
-      children.sort((a, b) => a.siblingRank.compareTo(b.siblingRank));
+      children.sort((a, b) {
+        final rankCompare = a.siblingRank.compareTo(b.siblingRank);
+        if (rankCompare != 0) return rankCompare;
+        return a.birthDate.compareTo(b.birthDate);
+      });
     }
   }
 
@@ -117,22 +121,140 @@ class FamilyProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Recalculate sibling ranks for all members in the current tree
+  Future<void> recalculateAllSiblingRanks() async {
+    if (_currentTreeId == null) return;
+
+    try {
+      // Get all members
+      final allMembers = await _databaseService.getAllMembers(
+        treeId: _currentTreeId,
+      );
+
+      // Group members by father
+      final Map<String?, List<FamilyMember>> membersByFather = {};
+      for (final member in allMembers) {
+        final fatherKey = member.fatherId ?? 'root';
+        membersByFather.putIfAbsent(fatherKey, () => []);
+        membersByFather[fatherKey]!.add(member);
+      }
+
+      // Update ranks for each family group
+      for (final entry in membersByFather.entries) {
+        final members = entry.value;
+
+        // Sort by birth date
+        members.sort((a, b) => a.birthDate.compareTo(b.birthDate));
+
+        // Update each member's rank
+        for (int i = 0; i < members.length; i++) {
+          final member = members[i];
+          final newRank = i + 1;
+
+          // Only update if rank changed
+          if (member.siblingRank != newRank) {
+            await _databaseService.updateMember(
+              member.copyWith(siblingRank: newRank),
+            );
+          }
+        }
+      }
+
+      print('✅ تم إعادة حساب ترتيب جميع الأعضاء');
+    } catch (e) {
+      print('❌ خطأ في إعادة الحساب: $e');
+    }
+  }
+
+  /// Calculate sibling rank based on birth date among siblings
+  Future<int> _calculateSiblingRank(FamilyMember member) async {
+    // Get all siblings (same father, same tree)
+    final siblings = await _databaseService.getAllMembers(
+      treeId: member.treeId,
+    );
+
+    // Filter to get only siblings with same father
+    final sameFatherSiblings = siblings
+        .where(
+          (s) =>
+              s.fatherId == member.fatherId &&
+              s.id != member.id, // Exclude the member itself if updating
+        )
+        .toList();
+
+    // Add the current member to the list for comparison
+    sameFatherSiblings.add(member);
+
+    // Sort by birth date (oldest first)
+    sameFatherSiblings.sort((a, b) => a.birthDate.compareTo(b.birthDate));
+
+    // Find the position (1-indexed)
+    final rank =
+        sameFatherSiblings.indexWhere(
+          (s) =>
+              s.id == member.id ||
+              (s.firstName == member.firstName &&
+                  s.birthDate == member.birthDate),
+        ) +
+        1;
+
+    return rank > 0 ? rank : 1;
+  }
+
+  /// Update sibling ranks for all siblings of a given father
+  Future<void> _updateAllSiblingRanks(String? fatherId, String treeId) async {
+    if (fatherId == null) return;
+
+    // Get all siblings
+    final siblings = await _databaseService.getAllMembers(treeId: treeId);
+    final sameFatherSiblings = siblings
+        .where((s) => s.fatherId == fatherId)
+        .toList();
+
+    // Sort by birth date
+    sameFatherSiblings.sort((a, b) => a.birthDate.compareTo(b.birthDate));
+
+    // Update each sibling's rank
+    for (int i = 0; i < sameFatherSiblings.length; i++) {
+      final sibling = sameFatherSiblings[i];
+      final newRank = i + 1;
+
+      // Only update if rank changed
+      if (sibling.siblingRank != newRank) {
+        await _databaseService.updateMember(
+          sibling.copyWith(siblingRank: newRank),
+        );
+      }
+    }
+  }
+
   /// Add a new member
   Future<String?> addMember(FamilyMember member) async {
     try {
       _error = null;
-      final id = await _databaseService.addMember(member);
+
+      // Calculate sibling rank based on birth date
+      final siblingRank = await _calculateSiblingRank(member);
+      final memberWithRank = member.copyWith(siblingRank: siblingRank);
+
+      final id = await _databaseService.addMember(memberWithRank);
 
       // Update parent's children list if applicable
-      if (member.fatherId != null) {
-        await _databaseService.addChildToParent(member.fatherId!, id);
+      if (memberWithRank.fatherId != null) {
+        await _databaseService.addChildToParent(memberWithRank.fatherId!, id);
       }
-      if (member.motherId != null) {
-        await _databaseService.addChildToParent(member.motherId!, id);
+      if (memberWithRank.motherId != null) {
+        await _databaseService.addChildToParent(memberWithRank.motherId!, id);
       }
 
+      // Update all sibling ranks to ensure consistency
+      await _updateAllSiblingRanks(
+        memberWithRank.fatherId,
+        memberWithRank.treeId,
+      );
+
       // Update tree member count
-      await _databaseService.updateTreeMemberCount(member.treeId);
+      await _databaseService.updateTreeMemberCount(memberWithRank.treeId);
 
       return id;
     } catch (e) {
@@ -146,7 +268,27 @@ class FamilyProvider extends ChangeNotifier {
   Future<bool> updateMember(FamilyMember member) async {
     try {
       _error = null;
-      await _databaseService.updateMember(member);
+
+      // Get the old member to check if father or birthDate changed
+      final oldMember = await _databaseService.getMember(member.id);
+
+      // Recalculate sibling rank if birth date or father changed
+      if (oldMember != null &&
+          (oldMember.birthDate != member.birthDate ||
+              oldMember.fatherId != member.fatherId)) {
+        final siblingRank = await _calculateSiblingRank(member);
+        final memberWithRank = member.copyWith(siblingRank: siblingRank);
+        await _databaseService.updateMember(memberWithRank);
+
+        // Update all sibling ranks for both old and new father
+        await _updateAllSiblingRanks(oldMember.fatherId, member.treeId);
+        if (oldMember.fatherId != member.fatherId) {
+          await _updateAllSiblingRanks(member.fatherId, member.treeId);
+        }
+      } else {
+        await _databaseService.updateMember(member);
+      }
+
       return true;
     } catch (e) {
       _error = e.toString();
